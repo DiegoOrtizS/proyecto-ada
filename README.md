@@ -21,3 +21,4 @@ Construir el SPTrie O(nm).
 
 Por lo que, la complejidad final se puede acotar como O(nm+mlgm).
 #### Recursividad:
+Pseudocódigo en las imágenes
