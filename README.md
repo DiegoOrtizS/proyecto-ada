@@ -21,34 +21,3 @@ Construir el SPTrie O(nm).
 
 Por lo que, la complejidad final se puede acotar como O(nm+mlgm).
 #### Recursividad:
-set[] S // n cadenas de longitud m
-pregunta1Recursivo(arr[] p, string permutation, arr[] &edges, arr[] &SPTries)
-{
-  if p.size == 0  then
-  {
-   SPTrie root(string_to_int_array(permutation))
-   for cadena in S
-     root.insert(cadena)
-   edges.push_back(root.n_edges)
-   SPTries.push_back(root)
-   return
-  }
-  for i=1 to p.size
-  {
-   arr[] pSinFirst = p;
-   pSinFirst.erase(pSinFirst.begin()) // se borra el primero
-   pregunta1Recursivo(pSinFirst, permutation+to_string(p[1]), edges, SPTries)
-   rotate(p.begin(), p.begin()+1, p.end())
-  }
-}
-
-pregunta1Principal(arr[] p)
-{
- arr[] edges = []
- arr[] SPTries = []
- pregunta1Recursivo(p, "", edges, SPTries)
- pos = min{n_edge : n_edge pertenece edges}
- return pair(edges[pos], SPTries[pos])
-}
-
-pregunta1Principal([0, 1, 2])
