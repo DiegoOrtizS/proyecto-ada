@@ -78,10 +78,10 @@ pair<SPTrieNode*, int> pregunta1Greedy(set<string> S, set<char> sigma, int m)
         int max = -1;
         for (auto it : S)
         {  
-            if (umap.find(it[i]) == umap.end())
-            {
-                umap[it[i]][i] = 0;
-            }
+            // if (umap.find(it[i]) == umap.end())
+            // {
+            //     umap[it[i]][i] = 0;
+            // }
             umap[it[i]][i]++;
             if (umap[it[i]][i] > max)
             {
