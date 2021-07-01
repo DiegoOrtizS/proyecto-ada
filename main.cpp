@@ -62,7 +62,7 @@ void print(SPTrieNode* current, char str[], int level)
     {
         if (current->children[i]) 
         {
-            str[level] = i + 'a';
+            str[level] = i + 97;
             print(current->children[i], str, level + 1);
         }
     }
