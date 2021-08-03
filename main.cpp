@@ -29,7 +29,6 @@ struct SPTrieNode
     void insert(string palabra)
     {
         SPTrieNode* current = this;
-        // p.size() = palabra.size() = m
         for (int j = 0; j < p.size(); ++j)
         {
             int i = p[j].first;
