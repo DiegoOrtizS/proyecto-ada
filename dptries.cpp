@@ -23,14 +23,14 @@ vector<int> K(int i, int j)
     // j-i < n
     // donde m es longitud de las cadenas y n es la cantidad de cadenas.
     vector<int> positions;
-    --i;
-    --j;
     if (i == j)
     {
-        for (int i = 0; i < S[0].size(); ++i) positions.push_back(i);
+        for (int iter = 0; iter < S[0].size(); ++iter) positions.push_back(iter);
     }
     else
     {
+        --i;
+        --j;
         for (int iter = 0; iter < S[0].size(); ++iter)
         {
             bool flag = true;
@@ -61,7 +61,7 @@ vector<int> K(int i, int j)
 
 vector<int> R(int i, int j, vector<int> K)
 {
-    // los vectores U y K están ordenados
+    // los vectores U y K están ordenados de forma creciente
     // |U| = m
     // O(m+|K|)
     vector<int> difference;
@@ -76,11 +76,26 @@ vector<int> R(int i, int j, vector<int> K)
 vector<pair<int, int>> C(int i, int j, int r)
 {
     vector<pair<int, int>> result;
-    // considerando que S está ordenado
-
-
-
-
+    if (i == j)
+    {
+        ++r;
+        result.push_back(make_pair(r, r));
+    }
+    else
+    {
+        --i;
+        --j;
+        int start = i, iter;    
+        for (iter = i; iter < j; ++iter)
+        {
+            if (S[iter][r] != S[iter+1][r])
+            {
+                result.push_back(make_pair(start+1, iter+1));
+                start = iter+1;
+            }
+        }
+        result.push_back(make_pair(start+1, iter+1));
+    }
     return result;
 }
 
@@ -98,6 +113,18 @@ void printVector(vector<T> v)
     {
         cout << it << " ";
     }
+    cout << endl;
+}
+
+template <typename T1, typename T2>
+void printVectorPair(vector<pair<T1, T2>> v)
+{
+    cout << "{";
+    for (auto it : v)
+    {
+        cout << "(" << it.first << ", " << it.second << ") ";
+    }
+    cout << "}";
     cout << endl;
 }
 
@@ -150,4 +177,8 @@ int main()
     aux = K(3, 3);
     printVector(aux);
     printVector(R(3, 3, aux));
+
+    printVectorPair(C(1, 3, 0));
+    printVectorPair(C(1, 3, 2));
+    printVectorPair(C(2, 3, 0));
 }
