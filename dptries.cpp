@@ -99,12 +99,24 @@ vector<pair<int, int>> C(int i, int j, int r)
     return result;
 }
 
-// int OPTRecursivo(int i, int j)
-// {
-//     if (i == j) return 0;
-//     auto k = K(i, j, S);
-//     // auto r = R(i, j);
-// }
+int OPTR(int i, int j)
+{
+    if (i == j) return 0;
+    auto k = K(i, j);
+    auto Raux = R(i, j, k);
+    vector<int> sumas;
+    for (auto r : Raux)
+    {
+        auto c = C(i, j, r);
+        int suma = 0;
+        for (auto par : c)
+        {
+            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - 1;
+        }
+        sumas.push_back(suma);
+    }
+    return *min_element(sumas.begin(), sumas.end());
+}
 
 template <typename T>
 void printVector(vector<T> v)
@@ -133,6 +145,8 @@ int main()
     // Inputs
     // n m (cadena 1, ..., cadena n)
     // 3 3 aaa bab cab
+    // 6 3 aaa bab cab cbb dcb dcc
+    // 4 3 aaa baa bac cbb
     set<char> sigma;
     // n cadenas
     int n;
@@ -181,4 +195,6 @@ int main()
     printVectorPair(C(1, 3, 0));
     printVectorPair(C(1, 3, 2));
     printVectorPair(C(2, 3, 0));
+
+    cout << OPTR(1, n);
 }
