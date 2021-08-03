@@ -1,14 +1,35 @@
 #include <iostream>
-#include <vector>
-#include <string>
+#include "sptrie.h"
 #include <set>
 #include <algorithm>
 #include <unordered_map>
+#include <limits>
 
 using namespace std;
 
 vector<int> U;
 vector<string> S;
+
+int INF = numeric_limits<int>::max();
+
+// bool cmp(pair<int, int>& a,
+//          pair<int, int>& b)
+// {
+//     return a.second < b.second;
+// }
+
+// vector<pair<int, int>> sort(unordered_map<int, int> &umap)
+// {
+//     vector<pair<int, int>> v;
+  
+//     for (auto& it : umap) 
+//     {
+//         v.push_back(it);
+//     }
+  
+//     sort(v.begin(), v.end(), cmp);
+//     return v;
+// }
 
 template <typename T>
 void printVector(vector<T> v)
@@ -122,13 +143,13 @@ vector<pair<int, int>> C(int i, int j, int r)
     return result;
 }
 
-int OPTR(int i, int j,unordered_map<int,int> &rmap)
+int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
 {
     if (i == j) return 0;
     auto k = K(i, j);
     auto Raux = R(i, j, k);
     vector<int> sumas;
-    
+    int minimo = INF;
     for (auto r : Raux)
     {
         auto c = C(i, j, r);
@@ -136,31 +157,38 @@ int OPTR(int i, int j,unordered_map<int,int> &rmap)
         int suma = 0;
         for (auto par : c)
         {
-            suma += OPTR(par.first, par.second,rmap) + K(par.first, par.second).size() - k.size();
+            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
         }
-        sumas.push_back(suma);
-        
-        if(rmap[r]<suma)
-           rmap[r]=suma;
-        //printf("r:%d,suma:%d\n",r,suma);
+        // sumas.push_back(suma);
+
+        if (suma < minimo) minimo = suma;
+        // if (rmap[r] < suma)
+        //    rmap[r] = suma;
     }
-    return *min_element(sumas.begin(), sumas.end());
+    // return *min_element(sumas.begin(), sumas.end());
+    return minimo;
 }
 
-int OPT(int i, int j, vector<int> p)
+int OPT(int i, int j)//, vector<int> &p)
 {
-    auto k = K(i, j);
-    for (auto it : k)
-    {
-        p.push_back(it);
-    }
-    unordered_map<int,int> rmap;
-    auto optres= OPTR(i, j,rmap);
-
-    for( const std::pair<int,int>& n : rmap ) {
-        std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
-    }
-    return optres + k.size();
+    // auto k = K(i, j);
+    // for (auto it : k)
+    // {
+    //     p.push_back(it);
+    // }
+    // unordered_map<int,int> rmap;
+    // auto optres = OPTR(i, j, rmap);
+    // auto paux = sort(rmap);
+    // for (auto it : paux)
+    // {
+    //     p.push_back(it.first);
+    // }
+    // for (auto it : p)
+    // {
+    //     cout << it << " ";
+    // }
+    // cout << endl;
+    return OPTR(i, j) + K(i, j).size();
 }
 
 int main()
@@ -203,22 +231,6 @@ int main()
         U.push_back(i);
     }
 
-    // Debug:
-    // auto aux = K(1, 3);
-    // printVector(aux);
-    // printVector(R(1, 3, aux));
-
-    // aux = K(2, 3);
-    // printVector(aux);
-    // printVector(R(2, 3, aux));
-
-    // aux = K(3, 3);
-    // printVector(aux);
-    // printVector(R(3, 3, aux));
-
-    // printVectorPair(C(1, 3, 0));
-    // printVectorPair(C(1, 3, 2));
-    // printVectorPair(C(2, 3, 0));
-    vector<int> p;
-    cout << OPT(1, n,p);
+    // vector<int> p;
+    cout << OPT(1, n) << endl;
 }

@@ -1,70 +1,15 @@
 #include <iostream>
 #include <set>
-#include <vector>
 #include <queue>
 #include <unordered_map>
 #include <algorithm>
+#include "sptrie.h"
 
 using namespace std;
-
-int aristas = 0;
-
-struct SPTrieNode
-{
-    vector<SPTrieNode*> children;
-    bool isLeaf;
-    vector<pair<int, int>> p;
- 
-    SPTrieNode(vector<pair<int, int>> p) // pero solo el .first del p me importa 
-    {
-        this->p = p;
-        isLeaf = false;
- 
-        for (int i = 0; i < 26; ++i) 
-        {
-            children.push_back(nullptr);
-        }
-    }
- 
-    void insert(string palabra)
-    {
-        SPTrieNode* current = this;
-        for (int j = 0; j < p.size(); ++j)
-        {
-            int i = p[j].first;
-            int alphabetPos = palabra[i] - 97;
-            if (current->children[alphabetPos] == nullptr) 
-            {
-                current->children[alphabetPos] = new SPTrieNode(p);
-                ++aristas;
-            }
-            current = current->children[alphabetPos];
-        }
-        current->isLeaf = true;
-    }
-};
 
 bool sortBySecond(const pair<int,int> &a, const pair<int,int> &b)
 {
     return (a.second > b.second);
-}
-
-void print(SPTrieNode* current, char str[], int level)
-{
-    if (current->isLeaf) 
-    {
-        str[level] = '\0';
-        cout << str << endl;
-    }
-
-    for (int i = 0; i < 26; i++) 
-    {
-        if (current->children[i]) 
-        {
-            str[level] = i + 97;
-            print(current->children[i], str, level + 1);
-        }
-    }
 }
 
 pair<SPTrieNode*, int> pregunta1Greedy(set<string> S, set<char> sigma, int m)
@@ -76,11 +21,7 @@ pair<SPTrieNode*, int> pregunta1Greedy(set<string> S, set<char> sigma, int m)
     {
         int max = -1;
         for (auto it : S)
-        {  
-            // if (umap.find(it[i]) == umap.end())
-            // {
-            //     umap[it[i]][i] = 0;
-            // }
+        {
             umap[it[i]][i]++;
             if (umap[it[i]][i] > max)
             {
@@ -91,9 +32,11 @@ pair<SPTrieNode*, int> pregunta1Greedy(set<string> S, set<char> sigma, int m)
     }
     // m*lgm
     sort(maxPerLevel.begin(), maxPerLevel.end(), sortBySecond);
+    vector<int> p;
     cout << "p: ( ";
     for (int i = 0; i < maxPerLevel.size(); ++i)
     {
+        p.push_back(maxPerLevel[i].first);
         cout << maxPerLevel[i].first;
         if (i < maxPerLevel.size()-1)
         {
@@ -103,7 +46,7 @@ pair<SPTrieNode*, int> pregunta1Greedy(set<string> S, set<char> sigma, int m)
     cout << " )";
     cout << endl;
 
-    SPTrieNode *root = new SPTrieNode(maxPerLevel);
+    SPTrieNode *root = new SPTrieNode(p);
     // n*m
     for (auto it : S)
     {
