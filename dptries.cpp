@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
@@ -121,12 +122,13 @@ vector<pair<int, int>> C(int i, int j, int r)
     return result;
 }
 
-int OPTR(int i, int j)
+int OPTR(int i, int j,unordered_map<int,int> &rmap)
 {
     if (i == j) return 0;
     auto k = K(i, j);
     auto Raux = R(i, j, k);
     vector<int> sumas;
+    
     for (auto r : Raux)
     {
         auto c = C(i, j, r);
@@ -134,9 +136,13 @@ int OPTR(int i, int j)
         int suma = 0;
         for (auto par : c)
         {
-            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
+            suma += OPTR(par.first, par.second,rmap) + K(par.first, par.second).size() - k.size();
         }
         sumas.push_back(suma);
+        
+        if(rmap[r]<suma)
+           rmap[r]=suma;
+        //printf("r:%d,suma:%d\n",r,suma);
     }
     return *min_element(sumas.begin(), sumas.end());
 }
@@ -148,7 +154,13 @@ int OPT(int i, int j, vector<int> p)
     {
         p.push_back(it);
     }
-    return OPTR(i, j) + k.size();
+    unordered_map<int,int> rmap;
+    auto optres= OPTR(i, j,rmap);
+
+    for( const std::pair<int,int>& n : rmap ) {
+        std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
+    }
+    return optres + k.size();
 }
 
 int main()
@@ -207,6 +219,6 @@ int main()
     // printVectorPair(C(1, 3, 0));
     // printVectorPair(C(1, 3, 2));
     // printVectorPair(C(2, 3, 0));
-
-    cout << OPT(1, n);
+    vector<int> p;
+    cout << OPT(1, n,p);
 }
