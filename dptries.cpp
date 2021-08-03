@@ -9,6 +9,28 @@ using namespace std;
 vector<int> U;
 vector<string> S;
 
+template <typename T>
+void printVector(vector<T> v)
+{
+    for (auto it : v)
+    {
+        cout << it << " ";
+    }
+    cout << endl;
+}
+
+template <typename T1, typename T2>
+void printVectorPair(vector<pair<T1, T2>> v)
+{
+    cout << "{";
+    for (auto it : v)
+    {
+        cout << "(" << it.first << ", " << it.second << ") ";
+    }
+    cout << "}";
+    cout << endl;
+}
+
 vector<int> K(int i, int j)
 {
     // O(mn)
@@ -108,45 +130,34 @@ int OPTR(int i, int j)
     for (auto r : Raux)
     {
         auto c = C(i, j, r);
+        // printVectorPair(c);
         int suma = 0;
         for (auto par : c)
         {
-            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - 1;
+            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
         }
         sumas.push_back(suma);
     }
     return *min_element(sumas.begin(), sumas.end());
 }
 
-template <typename T>
-void printVector(vector<T> v)
+int OPT(int i, int j, vector<int> p)
 {
-    for (auto it : v)
+    auto k = K(i, j);
+    for (auto it : k)
     {
-        cout << it << " ";
+        p.push_back(it);
     }
-    cout << endl;
-}
-
-template <typename T1, typename T2>
-void printVectorPair(vector<pair<T1, T2>> v)
-{
-    cout << "{";
-    for (auto it : v)
-    {
-        cout << "(" << it.first << ", " << it.second << ") ";
-    }
-    cout << "}";
-    cout << endl;
+    return OPTR(i, j) + k.size();
 }
 
 int main()
 {
     // Inputs
     // n m (cadena 1, ..., cadena n)
-    // 3 3 aaa bab cab
-    // 6 3 aaa bab cab cbb dcb dcc
-    // 4 3 aaa baa bac cbb
+    // 3 3 aaa bab cab // 6
+    // 6 3 aaa bab cab cbb dcb dcc // 13
+    // 4 3 aaa baa bac cbb // 8
     set<char> sigma;
     // n cadenas
     int n;
@@ -180,21 +191,22 @@ int main()
         U.push_back(i);
     }
 
-    auto aux = K(1, 3);
-    printVector(aux);
-    printVector(R(1, 3, aux));
+    // Debug:
+    // auto aux = K(1, 3);
+    // printVector(aux);
+    // printVector(R(1, 3, aux));
 
-    aux = K(2, 3);
-    printVector(aux);
-    printVector(R(2, 3, aux));
+    // aux = K(2, 3);
+    // printVector(aux);
+    // printVector(R(2, 3, aux));
 
-    aux = K(3, 3);
-    printVector(aux);
-    printVector(R(3, 3, aux));
+    // aux = K(3, 3);
+    // printVector(aux);
+    // printVector(R(3, 3, aux));
 
-    printVectorPair(C(1, 3, 0));
-    printVectorPair(C(1, 3, 2));
-    printVectorPair(C(2, 3, 0));
+    // printVectorPair(C(1, 3, 0));
+    // printVectorPair(C(1, 3, 2));
+    // printVectorPair(C(2, 3, 0));
 
-    cout << OPTR(1, n);
+    cout << OPT(1, n);
 }
