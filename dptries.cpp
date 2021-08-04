@@ -293,5 +293,5 @@ int main()
     cout << LlamarMemoizado(1, n, umap) << endl;
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
-    ProgramacionDinamica(1, n, umap);
+    // ProgramacionDinamica(1, n, umap);
 }
