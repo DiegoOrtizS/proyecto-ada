@@ -3,6 +3,7 @@
 #include <set>
 #include <algorithm>
 #include <unordered_map>
+#include <map>
 #include <limits>
 
 using namespace std;
@@ -12,26 +13,7 @@ vector<string> S;
 
 int INF = numeric_limits<int>::max();
 
-typedef unordered_map<int, unordered_map<int, int>> matriz;
-
-// bool cmp(pair<int, int>& a,
-//          pair<int, int>& b)
-// {
-//     return a.second < b.second;
-// }
-
-// vector<pair<int, int>> sort(unordered_map<int, int> &umap)
-// {
-//     vector<pair<int, int>> v;
-  
-//     for (auto& it : umap) 
-//     {
-//         v.push_back(it);
-//     }
-  
-//     sort(v.begin(), v.end(), cmp);
-//     return v;
-// }
+typedef map<int, map<int, int>> mapa;
 
 template <typename T>
 void printVector(vector<T> v)
@@ -55,8 +37,7 @@ void printVectorPair(vector<pair<T1, T2>> v)
     cout << endl;
 }
 
-template <typename T>
-void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
+void printMap(mapa umap)
 {
     for (auto it : umap)
     {
@@ -119,7 +100,7 @@ vector<int> K(int i, int j)
 }
 
 // O(n^3*m) complejidad algorítmica
-void fillMap(matriz &umapOPT, matriz &umapK)
+void fillMap(mapa &umapOPT, mapa &umapK)
 {
     // umapOPT y umapK son de complejidad espacial O(n^2). 
     // Luego, para guardar el trie se necesitará O(n*m*sigma).
@@ -255,12 +236,11 @@ int OPT(int i, int j)
     return OPTR(i, j) + K(i, j).size();
 }
 
-// TODO:
 // Complejidad algorítmica que pide es O(n^3*m+n^2*m^2)
 // Complejidad espacial que pide es O(n^2+n*m*sigma), 
-// donde tenemos dos matriz de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
+// donde tenemos dos mapa de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
 // Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
-int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
+int Memoizado(int i, int j, mapa &umapOPT, mapa &umapK)
 {
     if (i == j) return 0;
     auto k = umapK[i][j]; // O(1)
@@ -284,21 +264,84 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
     return minimo;
 }
 
-int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK)
+int LlamarMemoizado(int i, int j)
 {
+    mapa umapOPT, umapK;
     fillMap(umapOPT, umapK); // O(n^3*m)
     return Memoizado(i, j, umapOPT, umapK) + umapK[i][j];
 }
 
-int ProgramacionDinamica(int i, int j, matriz &umapOPT, matriz &umapK)
+int ProgramacionDinamica(int start, int end)
 {
-    // fillMap(umap);
-    // int iter2 = j;
-    // for (int iter1 = i; iter1 < j; ++iter1, --iter2)
-    // {
-    //     K(iter1, iter2);
+    // umapAgrupa: agrupar
+    // umapOPT: OPT
+    // umapProf: profundidad
+    --start;
+    --end;
+    mapa umapAgrupa, umapOPT, umapProf;
 
-    // }
+    for (int i = 0; i < S[0].size(); ++i) // <= m iteraciones
+    {
+        umapAgrupa[i][end] = end;
+        for (int j = end-1; j >= 0; --j) // <= n iteraciones
+        {
+            umapAgrupa[i][j] = (S[j][i] == S[j+1][i]) ? umapAgrupa[i][j+1] : j;
+        }
+    }
+    
+    for (int len = 1; len <= S.size(); ++len) // <= n iteraciones
+    {
+        for (int i = 0; i <= S.size() - len; ++i) // <= n iteraciones
+        {
+            int j = i+len-1;
+
+            for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
+            {
+                if (umapAgrupa[k][i] >= j) umapProf[i][j]++;
+            }
+            
+            // Nodo interno
+            if (umapProf[i][j] != S[0].size())
+            {
+                int minimo = INF;
+                for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
+                {
+                    if (umapAgrupa[k][i] < j)
+                    {
+                        int suma = 0;
+                        for (int l = i; l <= j; l = umapAgrupa[k][l]+1)
+                        {
+                            if (j < umapAgrupa[k][l])
+                            {
+                                suma += umapProf[l][j] + umapOPT[l][j];
+                            }
+                            else
+                            {
+                                suma += umapProf[l][umapAgrupa[k][l]] + umapOPT[l][umapAgrupa[k][l]];
+                            }
+                            suma -= umapProf[i][j];
+                        }
+                        // Nuevo mínimo
+                        if (suma < minimo) minimo = suma;
+                    }
+                }
+                // Lleno el OPT para i, j
+                umapOPT[i][j] = minimo;
+            }
+            // Nodo hoja
+            else
+            {
+                umapOPT[i][j] = 0;
+            }
+        }
+    }
+
+    // Agregar aristas faltantes en caso haya (para casos donde hay varios mínimos)
+    for (int k = 0; k < S[0].size(); ++k)
+    {
+        if (umapAgrupa[k][start] == end) umapOPT[start][end]++;
+    }
+    return umapOPT[start][end];
 }
 
 int main()
@@ -341,19 +384,10 @@ int main()
         U.push_back(i);
     }
 
-    // vector<int> p;
-    cout << OPT(1, n) << endl;
-    // en umap se va a guarda OPT con la raya encima (el del pdf)
-    matriz umapOPT;
-    matriz umapK;
-    // cout << K(1, 4).size() << endl;
-    // for (auto it : K(1, 4))
-    // {
-    //     cout << it << " ";
-    // }
-    // cout << endl;
-    cout << LlamarMemoizado(1, n, umapOPT, umapK) << endl;
-    // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
-    // cout << umap[1][n] + K(1, n).size() << endl;
-    // cout << ProgramacionDinamica(1, n, umapOPT, umapK) << endl;
+    // Pregunta 3
+    cout << "Recursivo min edges: " << OPT(1, n) << endl;
+    // Pregunta 4
+    cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
+    // Pregunta 5
+    cout << "DP min edges: " << ProgramacionDinamica(1, n) << endl;
 }
