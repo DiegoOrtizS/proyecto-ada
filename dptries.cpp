@@ -66,6 +66,19 @@ void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
     }
 }
 
+template <typename T>
+void fillMap(unordered_map<T, unordered_map<T, T>> &umap)
+{
+    for (int iter1 = 0; iter1 < S.size()+1; ++iter1)
+    {
+        for (int iter2 = 0; iter2 < iter1+1; ++iter2)
+        {
+            if (iter1 == iter2) umap[iter2][iter1] = 0;
+            else umap[iter2][iter1] = -1;
+        }
+    }
+}
+
 vector<int> K(int i, int j)
 {
     // O(nm)
@@ -184,7 +197,7 @@ int OPT(int i, int j)
 }
 
 // TODO:
-// Complejidad algorítmica que pide es O(n^2*m(n+m))
+// Complejidad algorítmica que pide es O(n^2*m*(n+m))
 // Complejidad espacial que pide es O(n^2+n*m*sigma), pero por el momento solo tenemos O(n^2)
 int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
 {
@@ -194,13 +207,13 @@ int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
     int minimo = INF;
     // R en el peor casos es de longitud m cuando k está vacío, 
     // ya que se queda con todas las posiciones desde 0, ..., m-1.
-    for (auto r : Raux) // m iteraciones
+    for (auto r : Raux) // O(m)
     {
-        auto c = C(i, j, r); // n iteraciones
+        auto c = C(i, j, r); // O(n)
         int suma = 0;
-        for (auto par : c) // n iteraciones
+        for (auto par : c) // O(n)
         {
-            suma += K(par.first, par.second).size() - k.size();
+            suma += K(par.first, par.second).size() - k.size(); // O(mn)
             if (umap[par.first][par.second] != -1)
             {
                 suma += umap[par.first][par.second];
@@ -218,16 +231,20 @@ int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
 
 int LlamarMemoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
 {
-    for (int iter1 = 0; iter1 < S.size()+1; ++iter1)
-    {
-        for (int iter2 = 0; iter2 < iter1+1; ++iter2)
-        {
-            if (iter1 == iter2) umap[iter2][iter1] = 0;
-            else umap[iter2][iter1] = -1;
-        }
-    }
+    fillMap(umap);
     return Memoizado(i, j, umap) + K(i, j).size();
 }
+
+// int ProgramacionDinamica(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+// {
+//     fillMap(umap);
+//     int iter2 = j;
+//     for (int iter1 = i; iter1 < j; ++iter1, --iter2)
+//     {
+//         K(iter1, iter2);
+
+//     }
+// }
 
 int main()
 {
@@ -276,4 +293,5 @@ int main()
     cout << LlamarMemoizado(1, n, umap) << endl;
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
+    ProgramacionDinamica(1, n, umap);
 }
