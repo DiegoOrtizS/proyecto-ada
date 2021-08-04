@@ -25,6 +25,8 @@ vector<int> R(int i, int j, vector<int> K);
 struct node{
     int id;
     int pos;
+    bool isleaf;
+    char charleaf;
     unordered_map<char,node*>adj;
 };
 
@@ -37,6 +39,14 @@ node* build_trie(int i, int j, matriz &min_pos){
     node* root = new node{};
     root->pos = p;
     root->id = index;
+
+    //1,1
+    if(i==j){
+        root->isleaf=true;
+        // root->charleaf=S[]  
+        return root;
+    }
+
     for (auto par : c)
     {
         auto rp = R(par.first,par.second,K(par.first, par.second));
@@ -321,7 +331,11 @@ vector<pair<int, int>> C(int i, int j, int r)
 int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 {
     // con un dfs para reconstruir el trie
-    if (i == j) return 0;
+    if (i == j) {
+        min_pos[i][j]=-1;
+        return 0;
+    }
+        
     auto k = K(i, j); // O(nm)
     auto Raux = R(i, j, k); // O(m)
     int minimo = INF;
@@ -346,13 +360,15 @@ int OPT(int i, int j, matriz min_pos)
 {  
     auto min = OPTR(i, j, min_pos) + K(i, j).size();
 
-    for(auto it : K(i,j)){
-        min_pos[i][j] = it;
-    }
+    // for(auto it : K(i,j)){
+    //     min_pos[i][j] = it;
+    // }
 
     node* root = build_trie(i,j,min_pos);
+
+    //
     
-    printTrieGen(root);
+    // printTrieGen(root);
     return min;
 }
 
