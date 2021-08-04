@@ -10,9 +10,58 @@ using namespace std;
 vector<int> U;
 vector<string> S;
 
+
 int INF = numeric_limits<int>::max();
 
 typedef unordered_map<int, unordered_map<int, int>> matriz;
+
+vector<int> K(int i, int j);
+vector<pair<int, int>> C(int i, int j, int r);
+vector<int> R(int i, int j, vector<int> K);
+
+
+
+
+struct node{
+    int id;
+    int pos;
+    unordered_map<char,node*>adj;
+};
+
+node* build_trie(int i, int j, matriz &min_pos){
+    int p = min_pos[i][j];
+    auto c = C(i,j,p);
+    //cambiar con la tabla de Ks para reducir la compeljidad
+    auto r = R(i,j,K(i,j));
+    int index = 1;
+    node* root = new node{};
+    root->pos = p;
+    root->id = index;
+    for (auto par : c)
+    {
+        auto rp = R(par.first,par.second,K(par.first, par.second));
+        node* newNode = build_trie(par.first,par.second, min_pos); 
+        vector<int> difR;
+        set_difference(r.begin(), r.end(),rp.begin(),rp.end(), back_inserter(difR)); //O(m)
+        
+        for (auto pp : difR)
+        {
+            if(pp == p)
+                continue;
+            node* nodeP = new node{};
+            nodeP->pos = pp;
+            nodeP->id = ++index;
+            newNode->adj[S[par.second][pp]] = nodeP;
+            newNode = nodeP;
+
+        }
+
+        root->adj[S[par.second][p]] = newNode;
+
+        return root;
+    }
+
+}
 
 // bool cmp(pair<int, int>& a,
 //          pair<int, int>& b)
@@ -67,6 +116,45 @@ void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
         cout << endl;
     }
 }
+
+void initFalse(node* node, unordered_map<int,bool>&visited){
+    for(auto it: node->adj){
+        visited[it.second->id] = false;
+        initFalse(it.second, visited);
+    }
+}
+
+void explorar(node* node, unordered_map<int,bool>&visited){
+    visited[node->id] = true;
+    for(auto it: node->adj){
+        if(!visited[it.second->id]){
+            cout<<it.second->pos<<" ";
+            explorar(it.second,visited);
+        }
+    }
+}
+
+
+
+void printTrieGen(node* root)
+{
+    unordered_map<int,bool>visited;
+    visited[root->id] = false;
+    initFalse(root,visited);
+    visited[root->id] = true;
+
+    for(auto it : root->adj){
+        if(!visited[it.second->id]){
+            explorar(it.second,visited);
+        }
+    }
+
+}
+
+
+
+
+
 
 vector<int> K(int i, int j)
 {
@@ -227,7 +315,7 @@ vector<pair<int, int>> C(int i, int j, int r)
     return result;
 }
 
-int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
+int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 {
     // con un dfs para reconstruir el trie
     if (i == j) return 0;
@@ -240,16 +328,25 @@ int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
         int suma = 0;
         for (auto par : c)
         {
-            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
+            suma += OPTR(par.first, par.second, min_pos) + K(par.first, par.second).size() - k.size();
         }
-        if (suma < minimo) minimo = suma;
+        if (suma < minimo) 
+        {
+            minimo = suma;
+            min_pos[i][j] = r;
+        }
     }
     return minimo;
 }
 
-int OPT(int i, int j)
-{
-    return OPTR(i, j) + K(i, j).size();
+int OPT(int i, int j, matriz min_pos)
+{  
+    auto min = OPTR(i, j, min_pos) + K(i, j).size();
+
+    node* root = build_trie(i,j,min_pos);
+    
+    printTrieGen(root);
+    return min;
 }
 
 // TODO:
@@ -257,7 +354,7 @@ int OPT(int i, int j)
 // Complejidad espacial que pide es O(n^2+n*m*sigma), 
 // donde tenemos dos matriz de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
 // Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
-int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
+int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
 {
     if (i == j) return 0;
     auto k = umapK[i][j]; // O(1)
@@ -273,7 +370,7 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
         {
             suma += umapK[par.first][par.second] - k;
             if (umapOPT[par.first][par.second] != -1) suma += umapOPT[par.first][par.second];
-            else suma += OPTR(par.first, par.second);
+            else suma += OPTR(par.first, par.second, min_pos);
         }
         if (suma < minimo) minimo = suma;
     }
@@ -281,10 +378,10 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
     return minimo;
 }
 
-int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK)
+int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz min_pos)
 {
     fillMap(umapOPT, umapK); // O(n^3*m)
-    return Memoizado(i, j, umapOPT, umapK) + umapK[i][j];
+    return Memoizado(i, j, umapOPT, umapK, min_pos) + umapK[i][j];
 }
 
 // int ProgramacionDinamica(int i, int j, matriz &umap)
@@ -305,6 +402,9 @@ int main()
     // 3 3 aaa bab cab // 6
     // 6 3 aaa bab cab cbb dcb dcc // 13
     // 4 3 aaa baa bac cbb // 8
+    matriz min_pos;
+
+    
     set<char> sigma;
     // n cadenas
     int n;
@@ -339,11 +439,11 @@ int main()
     }
 
     // vector<int> p;
-    cout << OPT(1, n) << endl;
+    cout << OPT(1, n, min_pos) << endl;
     // en umap se va a guarda OPT con la raya encima (el del pdf)
-    matriz umapOPT;
-    matriz umapK;
-    cout << LlamarMemoizado(1, n, umapOPT, umapK) << endl;
+    // matriz umapOPT;
+    // matriz umapK;
+    // cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
     // ProgramacionDinamica(1, n, umap);
