@@ -119,6 +119,7 @@ vector<int> R(int i, int j, vector<int> K)
 
 vector<pair<int, int>> C(int i, int j, int r)
 {
+    // O(n)
     vector<pair<int, int>> result;
     if (i == j)
     {
@@ -148,7 +149,7 @@ int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
     if (i == j) return 0;
     auto k = K(i, j);
     auto Raux = R(i, j, k);
-    vector<int> sumas;
+    // vector<int> sumas;
     int minimo = INF;
     for (auto r : Raux)
     {
@@ -189,6 +190,48 @@ int OPT(int i, int j)//, vector<int> &p)
     // }
     // cout << endl;
     return OPTR(i, j) + K(i, j).size();
+}
+
+// TODO:
+// Complejidad algorítmica que pide es O(n^2*m(n+m))
+// Complejidad espacial que pide es O(n^2+n*m*sigma), pero por el momento solo tenemos O(n^2)
+int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+{
+    if (i == j) return 0;
+    auto k = K(i, j);
+    auto Raux = R(i, j, k);
+    int minimo = INF;
+    // R en el peor casos es de longitud m cuando k está vacío, 
+    // ya que se queda con todas las posiciones desde 0, ..., m-1.
+    for (auto r : Raux) // m iteraciones
+    {
+        auto c = C(i, j, r); // n iteraciones
+        int suma = 0;
+        for (auto par : c) // n iteraciones
+        {
+            if (umap[par.first][par.second] == -1)
+            {
+                // Analizar la complejidad del llamado recursivo FALTA
+                umap[par.first][par.second] = OPTR(par.first, par.second);
+            }
+            suma += umap[par.first][par.second] + K(par.first, par.second).size() - k.size();
+        }
+        if (suma < minimo) minimo = suma;
+    }
+    return minimo;
+}
+
+int LlamarMemoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+{
+    for (int iter1 = 0; iter1 < S.size()+1; ++iter1)
+    {
+        for (int iter2 = 0; iter2 < iter1+1; ++iter2)
+        {
+            if (iter1 == iter2) umap[iter2][iter1] = 0;
+            else umap[iter2][iter1] = -1;
+        }
+    }
+    return Memoizado(i, j, umap) + K(i, j).size();
 }
 
 int main()
@@ -233,4 +276,6 @@ int main()
 
     // vector<int> p;
     cout << OPT(1, n) << endl;
+    unordered_map<int, unordered_map<int, int>> umap;
+    cout << LlamarMemoizado(1, n, umap) << endl;
 }
