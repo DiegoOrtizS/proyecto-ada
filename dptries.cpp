@@ -12,6 +12,8 @@ vector<string> S;
 
 int INF = numeric_limits<int>::max();
 
+typedef unordered_map<int, unordered_map<int, int>> matriz;
+
 // bool cmp(pair<int, int>& a,
 //          pair<int, int>& b)
 // {
@@ -66,19 +68,6 @@ void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
     }
 }
 
-template <typename T>
-void fillMap(unordered_map<T, unordered_map<T, T>> &umap)
-{
-    for (int iter1 = 0; iter1 < S.size()+1; ++iter1)
-    {
-        for (int iter2 = 0; iter2 < iter1+1; ++iter2)
-        {
-            if (iter1 == iter2) umap[iter2][iter1] = 0;
-            else umap[iter2][iter1] = -1;
-        }
-    }
-}
-
 vector<int> K(int i, int j)
 {
     // O(nm)
@@ -129,6 +118,22 @@ vector<int> K(int i, int j)
     return positions;
 }
 
+// O(n^3*m) complejidad algorítmica
+void fillMap(matriz &umapOPT, matriz &umapK)
+{
+    // umapOPT y umapK son de complejidad espacial O(n^2). 
+    // Luego, para guardar el trie se necesitará O(n*m*sigma).
+    for (int iter1 = 1; iter1 < S.size()+1; ++iter1)
+    {
+        for (int iter2 = 1; iter2 < iter1+1; ++iter2)
+        {
+            if (iter1 == iter2) umapOPT[iter2][iter1] = 0;
+            else umapOPT[iter2][iter1] = -1;
+            umapK[iter2][iter1] = K(iter2, iter1).size();
+        }
+    }
+}
+
 vector<int> R(int i, int j, vector<int> K)
 {
     // los vectores U y K están ordenados de forma creciente
@@ -142,6 +147,56 @@ vector<int> R(int i, int j, vector<int> K)
     K.begin(), K.end(),
     back_inserter(difference));
     return difference;
+}
+
+vector<int> RsinK(int i, int j)
+{
+    // O(nm)
+    /*
+    Peor de los casos, por ejemplo:
+    abc
+    abc
+    abc
+    */
+    // pero normalmente va mejor por el break, ya que en caso de directamente encontrar 
+    // caracteres que sean distintos ya pasa al siguiente nivel.
+    // j-i < n
+    // donde m es longitud de las cadenas y n es la cantidad de cadenas.
+    vector<int> positions;
+    if (i == j)
+    {
+        for (int iter = 0; iter < S[0].size(); ++iter) positions.push_back(iter);
+    }
+    else
+    {
+        --i;
+        --j;
+        for (int iter = 0; iter < S[0].size(); ++iter)
+        {
+            bool flag = true;
+            char primeraLetra = S[i][iter];
+            if (i+1 == j)
+            {
+                flag = (primeraLetra != S[i+1][iter]);
+            }
+            else
+            {
+                for (int aux = i+1; aux < j; ++aux)
+                {
+                    if (S[aux][iter] != primeraLetra)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+            if (!flag)
+            {
+                positions.push_back(iter);
+            }
+        }
+    }
+    return positions;
 }
 
 
@@ -174,6 +229,7 @@ vector<pair<int, int>> C(int i, int j, int r)
 
 int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
 {
+    // con un dfs para reconstruir el trie
     if (i == j) return 0;
     auto k = K(i, j); // O(nm)
     auto Raux = R(i, j, k); // O(m)
@@ -197,45 +253,41 @@ int OPT(int i, int j)
 }
 
 // TODO:
-// Complejidad algorítmica que pide es O(n^2*m*(n+m))
-// Complejidad espacial que pide es O(n^2+n*m*sigma), pero por el momento solo tenemos O(n^2)
-int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+// Complejidad algorítmica que pide es O(n^3*m+n^2*m^2)
+// Complejidad espacial que pide es O(n^2+n*m*sigma), 
+// donde tenemos dos matriz de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
+// Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
+int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK)
 {
     if (i == j) return 0;
-    auto k = K(i, j); // O(mn)
-    auto Raux = R(i, j, k); // O(m)
+    auto k = umapK[i][j]; // O(1)
+    auto Raux = RsinK(i, j); // O(mn)
     int minimo = INF;
     // R en el peor casos es de longitud m cuando k está vacío, 
     // ya que se queda con todas las posiciones desde 0, ..., m-1.
-    for (auto r : Raux) // O(m)
+    for (auto r : Raux) // <= m iteraciones
     {
-        auto c = C(i, j, r); // O(n)
+        auto c = C(i, j, r); // <= n iteraciones
         int suma = 0;
-        for (auto par : c) // O(n)
+        for (auto par : c) // <= n iteraciones
         {
-            suma += K(par.first, par.second).size() - k.size(); // O(mn)
-            if (umap[par.first][par.second] != -1)
-            {
-                suma += umap[par.first][par.second];
-            }
-            else
-            {
-                suma += OPTR(par.first, par.second);
-            }
+            suma += umapK[par.first][par.second] - k;
+            if (umapOPT[par.first][par.second] != -1) suma += umapOPT[par.first][par.second];
+            else suma += OPTR(par.first, par.second);
         }
         if (suma < minimo) minimo = suma;
     }
-    umap[i][j] = minimo;
+    umapOPT[i][j] = minimo;
     return minimo;
 }
 
-int LlamarMemoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK)
 {
-    fillMap(umap);
-    return Memoizado(i, j, umap) + K(i, j).size();
+    fillMap(umapOPT, umapK); // O(n^3*m)
+    return Memoizado(i, j, umapOPT, umapK) + umapK[i][j];
 }
 
-// int ProgramacionDinamica(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
+// int ProgramacionDinamica(int i, int j, matriz &umap)
 // {
 //     fillMap(umap);
 //     int iter2 = j;
@@ -289,8 +341,9 @@ int main()
     // vector<int> p;
     cout << OPT(1, n) << endl;
     // en umap se va a guarda OPT con la raya encima (el del pdf)
-    unordered_map<int, unordered_map<int, int>> umap;
-    cout << LlamarMemoizado(1, n, umap) << endl;
+    matriz umapOPT;
+    matriz umapK;
+    cout << LlamarMemoizado(1, n, umapOPT, umapK) << endl;
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
     // ProgramacionDinamica(1, n, umap);
