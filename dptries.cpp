@@ -275,11 +275,13 @@ int ProgramacionDinamica(int start, int end)
 {
     // umapAgrupa: agrupar
     // umapOPT: OPT
-    // umapProf: profundidad
+    // umapK: K
     --start;
     --end;
-    mapa umapAgrupa, umapOPT, umapProf;
+    mapa umapAgrupa, umapOPT, umapK, umapXd;
+    fillMap(umapOPT, umapK); // O(n^3*m)
 
+    // O(m*n)
     for (int i = 0; i < S[0].size(); ++i) // <= m iteraciones
     {
         umapAgrupa[i][end] = end;
@@ -289,19 +291,15 @@ int ProgramacionDinamica(int start, int end)
         }
     }
     
+    // O(n^2*m)
     for (int len = 1; len <= S.size(); ++len) // <= n iteraciones
     {
         for (int i = 0; i <= S.size() - len; ++i) // <= n iteraciones
         {
             int j = i+len-1;
-
-            for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
-            {
-                if (umapAgrupa[k][i] >= j) umapProf[i][j]++;
-            }
             
             // Nodo interno
-            if (umapProf[i][j] != S[0].size())
+            if (umapK[i+1][j+1] != S[0].size())
             {
                 int minimo = INF;
                 for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
@@ -313,13 +311,13 @@ int ProgramacionDinamica(int start, int end)
                         {
                             if (j < umapAgrupa[k][l])
                             {
-                                suma += umapProf[l][j] + umapOPT[l][j];
+                                suma += umapK[l+1][j+1] + umapOPT[l][j];
                             }
                             else
                             {
-                                suma += umapProf[l][umapAgrupa[k][l]] + umapOPT[l][umapAgrupa[k][l]];
+                                suma += umapK[l+1][umapAgrupa[k][l]+1] + umapOPT[l][umapAgrupa[k][l]];
                             }
-                            suma -= umapProf[i][j];
+                            suma -= umapK[i+1][j+1];
                         }
                         // Nuevo mínimo
                         if (suma < minimo) minimo = suma;
@@ -337,6 +335,7 @@ int ProgramacionDinamica(int start, int end)
     }
 
     // Agregar aristas faltantes en caso haya (para casos donde hay varios mínimos)
+    // O(m) (ej: 3 3 aaa bab cab)
     for (int k = 0; k < S[0].size(); ++k)
     {
         if (umapAgrupa[k][start] == end) umapOPT[start][end]++;
