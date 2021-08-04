@@ -100,7 +100,7 @@ vector<int> K(int i, int j)
             }
             else
             {
-                for (int aux = i+1; aux < j; ++aux)
+                for (int aux = i+1; aux <= j; ++aux)
                 {
                     if (S[aux][iter] != primeraLetra)
                     {
@@ -181,7 +181,7 @@ vector<int> RsinK(int i, int j)
             }
             else
             {
-                for (int aux = i+1; aux < j; ++aux)
+                for (int aux = i+1; aux <= j; ++aux)
                 {
                     if (S[aux][iter] != primeraLetra)
                     {
@@ -242,7 +242,10 @@ int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
         {
             suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
         }
-        if (suma < minimo) minimo = suma;
+        if (suma < minimo) 
+        {
+            minimo = suma;
+        }
     }
     return minimo;
 }
@@ -287,16 +290,16 @@ int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK)
     return Memoizado(i, j, umapOPT, umapK) + umapK[i][j];
 }
 
-// int ProgramacionDinamica(int i, int j, matriz &umap)
-// {
-//     fillMap(umap);
-//     int iter2 = j;
-//     for (int iter1 = i; iter1 < j; ++iter1, --iter2)
-//     {
-//         K(iter1, iter2);
+int ProgramacionDinamica(int i, int j, matriz &umapOPT, matriz &umapK)
+{
+    // fillMap(umap);
+    // int iter2 = j;
+    // for (int iter1 = i; iter1 < j; ++iter1, --iter2)
+    // {
+    //     K(iter1, iter2);
 
-//     }
-// }
+    // }
+}
 
 int main()
 {
@@ -304,7 +307,7 @@ int main()
     // n m (cadena 1, ..., cadena n)
     // 3 3 aaa bab cab // 6
     // 6 3 aaa bab cab cbb dcb dcc // 13
-    // 4 3 aaa baa bac cbb // 8
+    // 4 3 aaa baa bac cbb // 9
     set<char> sigma;
     // n cadenas
     int n;
@@ -343,8 +346,14 @@ int main()
     // en umap se va a guarda OPT con la raya encima (el del pdf)
     matriz umapOPT;
     matriz umapK;
+    // cout << K(1, 4).size() << endl;
+    // for (auto it : K(1, 4))
+    // {
+    //     cout << it << " ";
+    // }
+    // cout << endl;
     cout << LlamarMemoizado(1, n, umapOPT, umapK) << endl;
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
-    // ProgramacionDinamica(1, n, umap);
+    // cout << ProgramacionDinamica(1, n, umapOPT, umapK) << endl;
 }
