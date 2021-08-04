@@ -53,9 +53,22 @@ void printVectorPair(vector<pair<T1, T2>> v)
     cout << endl;
 }
 
+template <typename T>
+void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
+{
+    for (auto it : umap)
+    {
+        for (auto it2 : it.second)
+        {
+            cout << it.first << "," << it2.first << ": " << it2.second << " ";
+        }
+        cout << endl;
+    }
+}
+
 vector<int> K(int i, int j)
 {
-    // O(mn)
+    // O(nm)
     /*
     Peor de los casos, por ejemplo:
     abc
@@ -107,7 +120,9 @@ vector<int> R(int i, int j, vector<int> K)
 {
     // los vectores U y K están ordenados de forma creciente
     // |U| = m
-    // O(m+|K|)
+    // m+|K|
+    // En el peor de los casos |K| es m porque guardaría todas las posiciones
+    // O(m)
     vector<int> difference;
     set_difference(
     U.begin(), U.end(),
@@ -147,48 +162,24 @@ vector<pair<int, int>> C(int i, int j, int r)
 int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
 {
     if (i == j) return 0;
-    auto k = K(i, j);
-    auto Raux = R(i, j, k);
-    // vector<int> sumas;
+    auto k = K(i, j); // O(nm)
+    auto Raux = R(i, j, k); // O(m)
     int minimo = INF;
     for (auto r : Raux)
     {
         auto c = C(i, j, r);
-        // printVectorPair(c);
         int suma = 0;
         for (auto par : c)
         {
             suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
         }
-        // sumas.push_back(suma);
-
         if (suma < minimo) minimo = suma;
-        // if (rmap[r] < suma)
-        //    rmap[r] = suma;
     }
-    // return *min_element(sumas.begin(), sumas.end());
     return minimo;
 }
 
-int OPT(int i, int j)//, vector<int> &p)
+int OPT(int i, int j)
 {
-    // auto k = K(i, j);
-    // for (auto it : k)
-    // {
-    //     p.push_back(it);
-    // }
-    // unordered_map<int,int> rmap;
-    // auto optres = OPTR(i, j, rmap);
-    // auto paux = sort(rmap);
-    // for (auto it : paux)
-    // {
-    //     p.push_back(it.first);
-    // }
-    // for (auto it : p)
-    // {
-    //     cout << it << " ";
-    // }
-    // cout << endl;
     return OPTR(i, j) + K(i, j).size();
 }
 
@@ -198,8 +189,8 @@ int OPT(int i, int j)//, vector<int> &p)
 int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
 {
     if (i == j) return 0;
-    auto k = K(i, j);
-    auto Raux = R(i, j, k);
+    auto k = K(i, j); // O(mn)
+    auto Raux = R(i, j, k); // O(m)
     int minimo = INF;
     // R en el peor casos es de longitud m cuando k está vacío, 
     // ya que se queda con todas las posiciones desde 0, ..., m-1.
@@ -209,15 +200,19 @@ int Memoizado(int i, int j, unordered_map<int, unordered_map<int, int>> &umap)
         int suma = 0;
         for (auto par : c) // n iteraciones
         {
-            if (umap[par.first][par.second] == -1)
+            suma += K(par.first, par.second).size() - k.size();
+            if (umap[par.first][par.second] != -1)
             {
-                // Analizar la complejidad del llamado recursivo FALTA
-                umap[par.first][par.second] = OPTR(par.first, par.second);
+                suma += umap[par.first][par.second];
             }
-            suma += umap[par.first][par.second] + K(par.first, par.second).size() - k.size();
+            else
+            {
+                suma += OPTR(par.first, par.second);
+            }
         }
         if (suma < minimo) minimo = suma;
     }
+    umap[i][j] = minimo;
     return minimo;
 }
 
@@ -276,6 +271,9 @@ int main()
 
     // vector<int> p;
     cout << OPT(1, n) << endl;
+    // en umap se va a guarda OPT con la raya encima (el del pdf)
     unordered_map<int, unordered_map<int, int>> umap;
     cout << LlamarMemoizado(1, n, umap) << endl;
+    // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
+    // cout << umap[1][n] + K(1, n).size() << endl;
 }
