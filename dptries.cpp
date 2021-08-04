@@ -56,10 +56,9 @@ node* build_trie(int i, int j, matriz &min_pos){
 
         }
 
-        root->adj[S[par.second][p]] = newNode;
-
-        return root;
+        root->adj[S[par.second][p]] = newNode;        
     }
+    return root;
 
 }
 
@@ -119,30 +118,34 @@ void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
 
 void initFalse(node* node, unordered_map<int,bool>&visited){
     for(auto it: node->adj){
-        visited[it.second->id] = false;
-        initFalse(it.second, visited);
+        if(!node->adj.empty()){
+            visited[it.second->id] = false;
+            initFalse(it.second, visited);
+        }     
     }
 }
 
 void explorar(node* node, unordered_map<int,bool>&visited){
     visited[node->id] = true;
     for(auto it: node->adj){
-        if(!visited[it.second->id]){
-            cout<<it.second->pos<<" ";
-            explorar(it.second,visited);
-        }
+        if(!node->adj.empty()){
+            if(!visited[it.second->id]){
+                cout<<it.second->pos<<" ";
+                explorar(it.second,visited);
+            }
+        }  
+        
     }
 }
-
-
 
 void printTrieGen(node* root)
 {
     unordered_map<int,bool>visited;
+
     visited[root->id] = false;
     initFalse(root,visited);
-    visited[root->id] = true;
 
+    visited[root->id] = true;
     for(auto it : root->adj){
         if(!visited[it.second->id]){
             explorar(it.second,visited);
@@ -188,7 +191,7 @@ vector<int> K(int i, int j)
             }
             else
             {
-                for (int aux = i+1; aux < j; ++aux)
+                for (int aux = i+1; aux <= j; ++aux)
                 {
                     if (S[aux][iter] != primeraLetra)
                     {
@@ -269,7 +272,7 @@ vector<int> RsinK(int i, int j)
             }
             else
             {
-                for (int aux = i+1; aux < j; ++aux)
+                for (int aux = i+1; aux <= j; ++aux)
                 {
                     if (S[aux][iter] != primeraLetra)
                     {
@@ -342,6 +345,10 @@ int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 int OPT(int i, int j, matriz min_pos)
 {  
     auto min = OPTR(i, j, min_pos) + K(i, j).size();
+
+    for(auto it : K(i,j)){
+        min_pos[i][j] = it;
+    }
 
     node* root = build_trie(i,j,min_pos);
     
