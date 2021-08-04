@@ -104,13 +104,13 @@ void fillMap(mapa &umapOPT, mapa &umapK)
 {
     // umapOPT y umapK son de complejidad espacial O(n^2). 
     // Luego, para guardar el trie se necesitará O(n*m*sigma).
-    for (int iter1 = 1; iter1 < S.size()+1; ++iter1)
+    for (int iter1 = 1; iter1 < S.size()+1; ++iter1) // <= n iteraciones
     {
-        for (int iter2 = 1; iter2 < iter1+1; ++iter2)
+        for (int iter2 = 1; iter2 < iter1+1; ++iter2) // <= n iteraciones
         {
             if (iter1 == iter2) umapOPT[iter2][iter1] = 0;
             else umapOPT[iter2][iter1] = -1;
-            umapK[iter2][iter1] = K(iter2, iter1).size();
+            umapK[iter2][iter1] = K(iter2, iter1).size(); // O(n*m)
         }
     }
 }
@@ -278,7 +278,7 @@ int ProgramacionDinamica(int start, int end)
     // umapK: K
     --start;
     --end;
-    mapa umapAgrupa, umapOPT, umapK, umapXd;
+    mapa umapAgrupa, umapOPT, umapK;
     fillMap(umapOPT, umapK); // O(n^3*m)
 
     // O(m*n)
@@ -291,7 +291,7 @@ int ProgramacionDinamica(int start, int end)
         }
     }
     
-    // O(n^2*m)
+    // O(n^3*m)
     for (int len = 1; len <= S.size(); ++len) // <= n iteraciones
     {
         for (int i = 0; i <= S.size() - len; ++i) // <= n iteraciones
@@ -307,7 +307,7 @@ int ProgramacionDinamica(int start, int end)
                     if (umapAgrupa[k][i] < j)
                     {
                         int suma = 0;
-                        for (int l = i; l <= j; l = umapAgrupa[k][l]+1)
+                        for (int l = i; l <= j; l = umapAgrupa[k][l]+1) // <= n iteraciones
                         {
                             if (j < umapAgrupa[k][l])
                             {
