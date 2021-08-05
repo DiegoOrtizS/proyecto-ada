@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <limits>
+#include <map>
 
 using namespace std;
 
@@ -25,13 +26,11 @@ vector<int> R(int i, int j, vector<int> K);
 struct node{
     int id;
     int pos;
-    bool isleaf;
-    char charleaf;
-    unordered_map<char,node*>adj;
+    map<char,node*>adj;
 };
 
 node* build_trie(int i, int j, matriz &min_pos){
-    int p = min_pos[i][j];
+    int p = min_pos[i][j];//no se como guardar cuando es i==j
     auto c = C(i,j,p);
     //cambiar con la tabla de Ks para reducir la compeljidad
     auto r = R(i,j,K(i,j));
@@ -39,11 +38,9 @@ node* build_trie(int i, int j, matriz &min_pos){
     node* root = new node{};
     root->pos = p;
     root->id = index;
-
+    //root->isleaf=false;
     //1,1
     if(i==j){
-        root->isleaf=true;
-        // root->charleaf=S[]  
         return root;
     }
 
@@ -52,21 +49,30 @@ node* build_trie(int i, int j, matriz &min_pos){
         auto rp = R(par.first,par.second,K(par.first, par.second));
         node* newNode = build_trie(par.first,par.second, min_pos); 
         vector<int> difR;
-        set_difference(r.begin(), r.end(),rp.begin(),rp.end(), back_inserter(difR)); //O(m)
-        
-        for (auto pp : difR)
-        {
-            if(pp == p)
-                continue;
-            node* nodeP = new node{};
-            nodeP->pos = pp;
-            nodeP->id = ++index;
-            newNode->adj[S[par.second][pp]] = nodeP;
-            newNode = nodeP;
-
+        vector<int> difP;
+        difP.push_back(p);
+        set_difference(r.begin(), r.end(),difP.begin(),difP.end(), back_inserter(difR)); //O(m)
+    
+        if(difR.size()>0){
+            newNode->pos=difR[0];
         }
 
-        root->adj[S[par.second][p]] = newNode;        
+        auto temp= newNode;
+        if(rp.size()==0){
+            for (auto pp : difR)
+            {
+                if(pp == p)
+                    continue;
+                node* nodeP = new node{};
+                nodeP->pos = -1;
+                nodeP->id = ++index;
+                newNode->adj[S[par.second-1][pp]] = nodeP;
+                newNode = nodeP;
+
+            }
+        }
+
+        root->adj[S[par.second-1][p]] = temp;        
     }
     return root;
 
