@@ -1,7 +1,4 @@
-#include <vector>
-#include <string>
-
-using namespace std;
+#include "lib.h"
 
 int aristas = 0;
 
@@ -57,3 +54,5 @@ void print(SPTrieNode* current, char str[], int level)
         }
     }
 }
+
+
