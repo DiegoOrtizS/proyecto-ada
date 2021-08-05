@@ -39,6 +39,7 @@ void printVectorPair(vector<pair<T1, T2>> v)
 
 void printMap(mapa umap)
 {
+    cout << endl;
     for (auto it : umap)
     {
         for (auto it2 : it.second)
@@ -240,7 +241,7 @@ int OPT(int i, int j)
 // Complejidad espacial que pide es O(n^2+n*m*sigma), 
 // donde tenemos dos mapa de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
 // Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
-int Memoizado(int i, int j, mapa &umapOPT, mapa &umapK)
+int Memoizado(int i, int j, mapa &umapOPT, mapa umapK)
 {
     if (i == j) return 0;
     auto k = umapK[i][j]; // O(1)
@@ -254,9 +255,9 @@ int Memoizado(int i, int j, mapa &umapOPT, mapa &umapK)
         int suma = 0;
         for (auto par : c) // <= n iteraciones
         {
-            suma += umapK[par.first][par.second] - k;
-            if (umapOPT[par.first][par.second] != -1) suma += umapOPT[par.first][par.second];
-            else suma += OPTR(par.first, par.second);
+            if (umapOPT[par.first][par.second] == -1) 
+                umapOPT[par.first][par.second] += Memoizado(par.first, par.second, umapOPT, umapK) + umapK[par.first][par.second] - k;
+            suma += umapOPT[par.first][par.second];
         }
         if (suma < minimo) minimo = suma;
     }
@@ -386,7 +387,7 @@ int main()
     // Pregunta 3
     cout << "Recursivo min edges: " << OPT(1, n) << endl;
     // Pregunta 4
-    cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
+    // cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
     // Pregunta 5
     cout << "DP min edges: " << ProgramacionDinamica(1, n) << endl;
 }
