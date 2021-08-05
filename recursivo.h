@@ -1,5 +1,5 @@
 int OPTR(int i, int j, matriz &min_pos);
-int OPT(int i, int j, matriz min_pos);
+int OPT(int i, int j, matriz &min_pos);
 
 int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 {
@@ -29,7 +29,7 @@ int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
     return minimo;
 }
 
-int OPT(int i, int j, matriz min_pos)
+int OPT(int i, int j, matriz &min_pos)
 {  
     return OPTR(i, j, min_pos) + K(i, j).size();
 }

@@ -91,20 +91,20 @@ int main()
         U.push_back(i);
     }
 
-    // vector<int> p;
+     vector<int> p;
       cout << OPT(1, n, min_pos) << endl;
       auto *nodeRecursivo =completeBuild(1,n,min_pos);
-      printTrieGen(nodeRecursivo);
+    //   printTrieGen(nodeRecursivo);
       
     // en umap se va a guarda OPT con la raya encima (el del pdf)
-       matriz umapOPT;
-       matriz umapK;
+    //    matriz umapOPT;
+    //    matriz umapK;
 
 
-       cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
-       matriz min_pos2;
-       auto *nodeMemorizado =completeBuild(1,n,min_pos2);
-       printTrieGen(nodeMemorizado);
+    //    matriz min_pos2;
+    //    cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos2) << endl;
+    //    auto *nodeMemorizado =completeBuild(1,n,min_pos2);
+    //    printTrieGen(nodeMemorizado);
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
     // ProgramacionDinamica(1, n, umap);

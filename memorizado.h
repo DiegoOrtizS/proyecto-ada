@@ -1,7 +1,7 @@
 
 int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos);
 void fillMap(matriz &umapOPT, matriz &umapK);
-int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz min_pos);
+int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_pos);
 
 
 int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
@@ -51,7 +51,7 @@ void fillMap(matriz &umapOPT, matriz &umapK)
     }
 }
 
-int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz min_pos)
+int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_pos)
 {
     fillMap(umapOPT, umapK); // O(n^3*m)
     return Memoizado(i, j, umapOPT, umapK, min_pos) + umapK[i][j];
