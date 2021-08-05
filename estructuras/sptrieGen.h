@@ -19,7 +19,6 @@ vector<string> executeQuery(node* root, string query);
 void executeQuery(node* root, string query, vector<char> &rpta, char* cumple){
     if (root->pos == -1) 
     {
-        // if (!strcmp(cumple, ""))
         if (cumple != nullptr)
             rpta.push_back(*cumple);
         return;
@@ -79,7 +78,7 @@ node* build_trie(int i, int j, matriz &min_pos){
         auto rp = R(par.first, par.second, K(par.first, par.second));
 
         vector<int> difR;
-        //Acuerdense que para que este metodo funcione r y rp tienen que estar ordenados
+        //r y rp tienen que estar ordenados
         set_difference(r.begin(), r.end(), rp.begin(), rp.end(), back_inserter(difR)); //O(m)
 
         for (auto pp : difR) {
