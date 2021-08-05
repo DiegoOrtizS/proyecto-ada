@@ -1,9 +1,9 @@
 #include "lib.h"
-#include "utils.h"
-#include "sptrieGen.h"
-#include "recursivo.h"
-#include "memorizado.h"
-#include "dinamic.h"
+#include "utils/utils.h"
+#include "estructuras/sptrieGen.h"
+#include "algoritmos/recursivo.h"
+#include "algoritmos/memorizado.h"
+#include "algoritmos/dinamic.h"
 
 using namespace std;
 

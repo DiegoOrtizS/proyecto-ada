@@ -1,10 +1,10 @@
 #include "lib.h"
-#include "utils.h"
-#include "parser.h"
-#include "sptrieGen.h"
-#include "sptrie.h"
-#include "dinamic.h"
-#include "greedy.h"
+#include "utils/utils.h"
+#include "utils/parser.h"
+#include "estructuras/sptrieGen.h"
+#include "estructuras/sptrie.h"
+#include "algoritmos/dinamic.h"
+#include "algoritmos/greedy.h"
 // #include "memorizado.h"
 
 int main()
