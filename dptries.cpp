@@ -1,347 +1,55 @@
-#include <iostream>
-#include "sptrie.h"
-#include <set>
-#include <algorithm>
-#include <unordered_map>
-#include <map>
-#include <limits>
+#include "lib.h"
+#include "utils/utils.h"
+#include "estructuras/sptrieGen.h"
+#include "algoritmos/recursivo.h"
+#include "algoritmos/memorizado.h"
+#include "algoritmos/dinamic.h"
+#include <stdio.h>
+#include <chrono>
 
 using namespace std;
 
-vector<int> U;
-vector<string> S;
-
-int INF = numeric_limits<int>::max();
-
-typedef map<int, map<int, int>> mapa;
-
-template <typename T>
-void printVector(vector<T> v)
-{
-    for (auto it : v)
-    {
-        cout << it << " ";
-    }
-    cout << endl;
-}
-
-template <typename T1, typename T2>
-void printVectorPair(vector<pair<T1, T2>> v)
-{
-    cout << "{";
-    for (auto it : v)
-    {
-        cout << "(" << it.first << ", " << it.second << ") ";
-    }
-    cout << "}";
-    cout << endl;
-}
-
-void printMap(mapa umap)
-{
-    cout << endl;
-    for (auto it : umap)
-    {
-        for (auto it2 : it.second)
-        {
-            cout << it.first << "," << it2.first << ": " << it2.second << " ";
-        }
-        cout << endl;
-    }
-}
-
-vector<int> K(int i, int j)
-{
-    // O(nm)
-    /*
-    Peor de los casos, por ejemplo:
-    abc
-    abc
-    abc
-    */
-    // pero normalmente va mejor por el break, ya que en caso de directamente encontrar 
-    // caracteres que sean distintos ya pasa al siguiente nivel.
-    // j-i < n
-    // donde m es longitud de las cadenas y n es la cantidad de cadenas.
-    vector<int> positions;
-    if (i == j)
-    {
-        for (int iter = 0; iter < S[0].size(); ++iter) positions.push_back(iter);
-    }
-    else
-    {
-        --i;
-        --j;
-        for (int iter = 0; iter < S[0].size(); ++iter)
-        {
-            bool flag = true;
-            char primeraLetra = S[i][iter];
-            if (i+1 == j)
-            {
-                flag = (primeraLetra == S[i+1][iter]);
-            }
-            else
-            {
-                for (int aux = i+1; aux <= j; ++aux)
-                {
-                    if (S[aux][iter] != primeraLetra)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
-            if (flag)
-            {
-                positions.push_back(iter);
-            }
-        }
-    }
-    return positions;
-}
-
 // O(n^3*m) complejidad algorítmica
-void fillMap(mapa &umapOPT, mapa &umapK)
-{
-    // umapOPT y umapK son de complejidad espacial O(n^2). 
-    // Luego, para guardar el trie se necesitará O(n*m*sigma).
-    for (int iter1 = 1; iter1 < S.size()+1; ++iter1) // <= n iteraciones
-    {
-        for (int iter2 = 1; iter2 < iter1+1; ++iter2) // <= n iteraciones
-        {
-            if (iter1 == iter2) umapOPT[iter2][iter1] = 0;
-            else umapOPT[iter2][iter1] = -1;
-            umapK[iter2][iter1] = K(iter2, iter1).size(); // O(n*m)
-        }
-    }
-}
-
-vector<int> R(int i, int j, vector<int> K)
-{
-    // los vectores U y K están ordenados de forma creciente
-    // |U| = m
-    // m+|K|
-    // En el peor de los casos |K| es m porque guardaría todas las posiciones
-    // O(m)
-    vector<int> difference;
-    set_difference(
-    U.begin(), U.end(),
-    K.begin(), K.end(),
-    back_inserter(difference));
-    return difference;
-}
-
-vector<int> RsinK(int i, int j)
-{
-    // O(nm)
-    /*
-    Peor de los casos, por ejemplo:
-    abc
-    abc
-    abc
-    */
-    // pero normalmente va mejor por el break, ya que en caso de directamente encontrar 
-    // caracteres que sean distintos ya pasa al siguiente nivel.
-    // j-i < n
-    // donde m es longitud de las cadenas y n es la cantidad de cadenas.
-    vector<int> positions;
-    if (i == j)
-    {
-        for (int iter = 0; iter < S[0].size(); ++iter) positions.push_back(iter);
-    }
-    else
-    {
-        --i;
-        --j;
-        for (int iter = 0; iter < S[0].size(); ++iter)
-        {
-            bool flag = true;
-            char primeraLetra = S[i][iter];
-            if (i+1 == j)
-            {
-                flag = (primeraLetra != S[i+1][iter]);
-            }
-            else
-            {
-                for (int aux = i+1; aux <= j; ++aux)
-                {
-                    if (S[aux][iter] != primeraLetra)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
-            if (!flag)
-            {
-                positions.push_back(iter);
-            }
-        }
-    }
-    return positions;
-}
 
 
-vector<pair<int, int>> C(int i, int j, int r)
-{
-    // O(n)
-    vector<pair<int, int>> result;
-    if (i == j)
-    {
-        ++r;
-        result.push_back(make_pair(r, r));
-    }
-    else
-    {
-        --i;
-        --j;
-        int start = i, iter;    
-        for (iter = i; iter < j; ++iter)
-        {
-            if (S[iter][r] != S[iter+1][r])
-            {
-                result.push_back(make_pair(start+1, iter+1));
-                start = iter+1;
-            }
-        }
-        result.push_back(make_pair(start+1, iter+1));
-    }
-    return result;
-}
+// int OPT(int i, int j, matriz min_pos)
+// {  
+    
+//     auto ktp=K(i, j);
+//     auto min = OPTR(i, j, min_pos) + ktp.size();
 
-int OPTR(int i, int j)//,unordered_map<int,int> &rmap)
-{
-    // con un dfs para reconstruir el trie
-    if (i == j) return 0;
-    auto k = K(i, j); // O(nm)
-    auto Raux = R(i, j, k); // O(m)
-    int minimo = INF;
-    for (auto r : Raux)
-    {
-        auto c = C(i, j, r);
-        int suma = 0;
-        for (auto par : c)
-        {
-            suma += OPTR(par.first, par.second) + K(par.first, par.second).size() - k.size();
-        }
-        if (suma < minimo) 
-        {
-            minimo = suma;
-        }
-    }
-    return minimo;
-}
+//     // node* root = build_trie(i,j,min_pos);
+//     // //uno con los ks
+//     // for (int i=0;i<ktp.size();i++){
+//     //      node* tmp=new node{};
+//     //      char chartmp= S[0][ktp[i]];
+//     //      tmp->pos=ktp[i];
+//     //      tmp->adj[chartmp]=root;
+//     //      root=tmp;
+//     // }
+    
+//     // printTrieGen(root);
+//     return min;
+// }
 
-int OPT(int i, int j)
-{
-    return OPTR(i, j) + K(i, j).size();
-}
-
+// TODO:
 // Complejidad algorítmica que pide es O(n^3*m+n^2*m^2)
 // Complejidad espacial que pide es O(n^2+n*m*sigma), 
-// donde tenemos dos mapa de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
+// donde tenemos dos matriz de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
 // Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
-int Memoizado(int i, int j, mapa &umapOPT, mapa umapK)
-{
-    if (i == j) return 0;
-    auto k = umapK[i][j]; // O(1)
-    auto Raux = RsinK(i, j); // O(mn)
-    int minimo = INF;
-    // R en el peor casos es de longitud m cuando k está vacío, 
-    // ya que se queda con todas las posiciones desde 0, ..., m-1.
-    for (auto r : Raux) // <= m iteraciones
-    {
-        auto c = C(i, j, r); // <= n iteraciones
-        int suma = 0;
-        for (auto par : c) // <= n iteraciones
-        {
-            if (umapOPT[i][j] != -1) return umapOPT[i][j];
-            suma += Memoizado(par.first, par.second, umapOPT, umapK) + umapK[par.first][par.second] - k;
-        }
-        if (suma < minimo) minimo = suma;
-    }
-    umapOPT[i][j] = minimo;
-    return minimo;
-}
 
-int LlamarMemoizado(int i, int j)
-{
-    mapa umapOPT, umapK;
-    fillMap(umapOPT, umapK); // O(n^3*m)
-    return Memoizado(i, j, umapOPT, umapK) + umapK[i][j];
-}
 
-int ProgramacionDinamica(int start, int end)
-{
-    // umapAgrupa: agrupar
-    // umapOPT: OPT
-    // umapK: K
-    --start;
-    --end;
-    mapa umapAgrupa, umapOPT, umapK;
-    fillMap(umapOPT, umapK); // O(n^3*m)
 
-    // O(m*n)
-    for (int i = 0; i < S[0].size(); ++i) // <= m iteraciones
-    {
-        umapAgrupa[i][end] = end;
-        for (int j = end-1; j >= 0; --j) // <= n iteraciones
-        {
-            umapAgrupa[i][j] = (S[j][i] == S[j+1][i]) ? umapAgrupa[i][j+1] : j;
-        }
-    }
-    
-    // O(n^3*m)
-    for (int len = 1; len <= S.size(); ++len) // <= n iteraciones
-    {
-        for (int i = 0; i <= S.size() - len; ++i) // <= n iteraciones
-        {
-            int j = i+len-1;
-            
-            // Nodo interno
-            if (umapK[i+1][j+1] != S[0].size())
-            {
-                int minimo = INF;
-                for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
-                {
-                    if (umapAgrupa[k][i] < j)
-                    {
-                        int suma = 0;
-                        for (int l = i; l <= j; l = umapAgrupa[k][l]+1) // <= n iteraciones
-                        {
-                            if (j < umapAgrupa[k][l])
-                            {
-                                suma += umapK[l+1][j+1] + umapOPT[l][j];
-                            }
-                            else
-                            {
-                                suma += umapK[l+1][umapAgrupa[k][l]+1] + umapOPT[l][umapAgrupa[k][l]];
-                            }
-                            suma -= umapK[i+1][j+1];
-                        }
-                        // Nuevo mínimo
-                        if (suma < minimo) minimo = suma;
-                    }
-                }
-                // Lleno el OPT para i, j
-                umapOPT[i][j] = minimo;
-            }
-            // Nodo hoja
-            else
-            {
-                umapOPT[i][j] = 0;
-            }
-        }
-    }
+// int ProgramacionDinamica(int i, int j, matriz &umap)
+// {
+//     fillMap(umap);
+//     int iter2 = j;
+//     for (int iter1 = i; iter1 < j; ++iter1, --iter2)
+//     {
+//         K(iter1, iter2);
 
-    // Agregar aristas faltantes en caso haya (para casos donde hay varios mínimos)
-    // O(m) (ej: 3 3 aaa bab cab)
-    for (int k = 0; k < S[0].size(); ++k)
-    {
-        if (umapAgrupa[k][start] == end) umapOPT[start][end]++;
-    }
-    return umapOPT[start][end];
-}
+//     }
+// }
 
 int main()
 {
@@ -350,6 +58,9 @@ int main()
     // 3 3 aaa bab cab // 6
     // 6 3 aaa bab cab cbb dcb dcc // 13
     // 4 3 aaa baa bac cbb // 9
+    matriz min_pos;
+
+    
     set<char> sigma;
     // n cadenas
     int n;
@@ -383,10 +94,46 @@ int main()
         U.push_back(i);
     }
 
-    // Pregunta 3
-    cout << "Recursivo min edges: " << OPT(1, n) << endl;
-    // Pregunta 4
-    cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
-    // Pregunta 5
-    cout << "DP min edges: " << ProgramacionDinamica(1, n) << endl;
+    // freopen("output.txt","w",stdout);
+
+    auto begin = std::chrono::high_resolution_clock::now();
+
+    vector<int> p;
+    cout <<"Recursivo: "<<OPT(1, n, min_pos) << endl;
+    auto *nodeRecursivo =completeBuild(1,n,min_pos);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    cout<<"Tiempo:"<<elapsed.count()<<endl;
+    // printTrieGen(nodeRecursivo);
+    //printMapOfMaps(min_pos);
+
+      
+    // // en umap se va a guarda OPT con la raya encima (el del pdf)
+    auto begin2 = std::chrono::high_resolution_clock::now();
+    matriz umapOPT;
+    matriz umapK;
+    matriz min_pos2;
+    cout << "Memorizado: "<<LlamarMemoizado(1, n, umapOPT, umapK, min_pos2) << endl;
+    auto *nodeMemorizado =completeBuild(1,n,min_pos2);
+    auto end2 = std::chrono::high_resolution_clock::now();
+    auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - begin2);
+    cout<<"Tiempo:"<<elapsed2.count()<<endl;
+    // printTrieGen(nodeMemorizado);
+    //printMapOfMaps(min_pos2);
+
+    auto begin3 = std::chrono::high_resolution_clock::now();
+    matriz min_pos3;
+    cout<< "Dinamico:" <<ProgramacionDinamica(1,n,min_pos3) <<endl;
+    auto *nodeDinamico =completeBuild(1,n,min_pos3);
+    auto end3 = std::chrono::high_resolution_clock::now();
+    auto elapsed3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - begin3);
+    cout<<"Tiempo:"<<elapsed3.count()<<endl;
+    // printTrieGen(nodeDinamico);
+    //printMapOfMaps(min_pos3);
+
+
+    
+    // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
+    // cout << umap[1][n] + K(1, n).size() << endl;
+    // ProgramacionDinamica(1, n, umap);
 }

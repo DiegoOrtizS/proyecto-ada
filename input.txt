@@ -1,1 +1,3 @@
 3 3 aaa bab cab
+6 3 aaa bab cab cbb dcb dcc
+4 3 aaa baa bac cbb
