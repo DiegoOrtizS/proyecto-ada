@@ -38,8 +38,10 @@ int main()
 
             for (auto it : entradaYconsulta.second)
             {
+                cout<<it.first<<":"<<endl;
                 for (auto it2 : it.second)
                 {
+                    cout<<it2<<" -> ";
                     vector<char> result;
                     executeQueryGreedy(rtriesG[it.first], it2, result, nullptr, 0);
                     printVector(result);
@@ -68,8 +70,10 @@ int main()
             }
             for (auto it : entradaYconsulta.second)
             {
+                cout<<it.first<<":"<<endl;
                 for (auto it2 : it.second)
                 {
+                    cout<<it2<<" -> ";
                     vector<char> result;
                     executeQuery(rtriesDP[it.first], it2, result, nullptr);
                     printVector(result);
