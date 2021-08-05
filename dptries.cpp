@@ -338,7 +338,7 @@ int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 {
     // con un dfs para reconstruir el trie
     if (i == j) {
-        min_pos[i][j]=-1;
+        // min_pos[i][j]=-1;
         return 0;
     }
         
