@@ -6,11 +6,11 @@ int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_p
 
 int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
 {
-    if (i == j) {
-      min_pos[i][j]=-1;
-      return 0;
+    if (i == j) 
+    {
+        min_pos[i][j] = -1;
+        return 0;
     }
-        
     auto k = umapK[i][j]; // O(1)
     auto Raux = RsinK(i, j); // O(mn)
     int minimo = maxInt;
@@ -22,20 +22,18 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
         int suma = 0;
         for (auto par : c) // <= n iteraciones
         {
-            suma += umapK[par.first][par.second] - k;
-            if (umapOPT[par.first][par.second] != -1) suma += umapOPT[par.first][par.second];
-            else suma += OPTR(par.first, par.second, min_pos);
+            if (umapOPT[i][j] != -1) return umapOPT[i][j];
+            suma += Memoizado(par.first, par.second, umapOPT, umapK, min_pos) + umapK[par.first][par.second] - k;
         }
-        if (suma < minimo) {
-            min_pos[i][j]=r;
+        if (suma < minimo) 
+        {
+            min_pos[i][j] = r;
             minimo = suma;
         }
-            
     }
     umapOPT[i][j] = minimo;
     return minimo;
 }
-
 void fillMap(matriz &umapOPT, matriz &umapK)
 {
     // umapOPT y umapK son de complejidad espacial O(n^2). 

@@ -113,7 +113,7 @@ vector<int> RsinK(int i, int j)
             char primeraLetra = S[i][iter];
             if (i+1 == j)
             {
-                flag = (primeraLetra != S[i+1][iter]);
+                flag = (primeraLetra == S[i+1][iter]);
             }
             else
             {
@@ -134,7 +134,6 @@ vector<int> RsinK(int i, int j)
     }
     return positions;
 }
-
 vector<pair<int, int>> C(int i, int j, int r)
 {
     // O(n)
