@@ -318,7 +318,7 @@ vector<int> RsinK(int i, int j)
             char primeraLetra = S[i][iter];
             if (i+1 == j)
             {
-                flag = (primeraLetra != S[i+1][iter]);
+                flag = (primeraLetra == S[i+1][iter]);
             }
             else
             {
@@ -368,11 +368,10 @@ vector<pair<int, int>> C(int i, int j, int r)
     return result;
 }
 
-int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
+int OPTR(int i, int j, matriz &min_pos)
 {
-    // con un dfs para reconstruir el trie
     if (i == j) {
-        // min_pos[i][j]=-1;
+        min_pos[i][j]=-1;
         return 0;
     }
         
@@ -396,38 +395,37 @@ int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
     return minimo;
 }
 
-int OPT(int i, int j, matriz min_pos)
+int OPT(int i, int j, matriz &min_pos)
 {  
     
     auto ktp=K(i, j);
     auto min = OPTR(i, j, min_pos) + ktp.size();
 
-    // for(auto it : K(i,j)){
-    //     min_pos[i][j] = it;
+    // node* root = build_trie(i,j,min_pos);
+    // //uno con los ks
+    // for (int i=0;i<ktp.size();i++){
+    //      node* tmp=new node{};
+    //      char chartmp= S[0][ktp[i]];
+    //      tmp->pos=ktp[i];
+    //      tmp->adj[chartmp]=root;
+    //      root=tmp;
     // }
-
-    node* root = build_trie(i,j,min_pos);
-    //uno con los ks
-    for (int i=0;i<ktp.size();i++){
-         node* tmp=new node{};
-         char chartmp= S[0][ktp[i]];
-         tmp->pos=ktp[i];
-         tmp->adj[chartmp]=root;
-         root=tmp;
-    }
     
     // printTrieGen(root);
     return min;
 }
 
-// TODO:
 // Complejidad algorítmica que pide es O(n^3*m+n^2*m^2)
 // Complejidad espacial que pide es O(n^2+n*m*sigma), 
-// donde tenemos dos matriz de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
+// donde tenemos dos mapa de n^2 pero igual O(n^2) + O(n^2) = O(n^2)
 // Note que el O(n*m*sigma) de espacio viene dado por el trie que se va a construir.
 int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
 {
-    if (i == j) return 0;
+    if (i == j) 
+    {
+        min_pos[i][j] = -1;
+        return 0;
+    }
     auto k = umapK[i][j]; // O(1)
     auto Raux = RsinK(i, j); // O(mn)
     int minimo = INF;
@@ -439,17 +437,20 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
         int suma = 0;
         for (auto par : c) // <= n iteraciones
         {
-            suma += umapK[par.first][par.second] - k;
-            if (umapOPT[par.first][par.second] != -1) suma += umapOPT[par.first][par.second];
-            else suma += OPTR(par.first, par.second, min_pos);
+            if (umapOPT[i][j] != -1) return umapOPT[i][j];
+            suma += Memoizado(par.first, par.second, umapOPT, umapK, min_pos) + umapK[par.first][par.second] - k;
         }
-        if (suma < minimo) minimo = suma;
+        if (suma < minimo) 
+        {
+            min_pos[i][j] = r;
+            minimo = suma;
+        }
     }
     umapOPT[i][j] = minimo;
     return minimo;
 }
 
-int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz min_pos)
+int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_pos)
 {
     fillMap(umapOPT, umapK); // O(n^3*m)
     return Memoizado(i, j, umapOPT, umapK, min_pos) + umapK[i][j];
@@ -527,58 +528,55 @@ int ProgramacionDinamica(int start, int end)
     return umapOPT[start][end];
 }
 
-// int main()
-// {
-//     // Inputs
-//     // n m (cadena 1, ..., cadena n)
-//     // 3 3 aaa bab cab // 6
-//     // 6 3 aaa bab cab cbb dcb dcc // 13
-//     // 4 3 aaa baa bac cbb // 8
-//     matriz min_pos;
-//     set<char> sigma;
-//     // n cadenas
-//     int n;
-//     cin >> n;
-//     // cada cadena de longitud m
-//     int m;
-//     cin >> m;  
-//     string cadena;
-//     // llenar el conjunto S
-//     for (int i = 0; i < n; ++i)
-//     {
-//         cin >> cadena;
-//         // por si el profe nos da un testcase con mayúsculas
-//         for_each(cadena.begin(), cadena.end(), [](char & c) 
-//         {
-//             c = ::tolower(c);
-//         });
-//         S.push_back(cadena.substr(0, m));
-//     }
-//     // llenar el alfabeto
-//     for (auto it : S)
-//     {
-//         for (auto it2 : it)
-//         {
-//             sigma.insert(it2);
-//         }
-//     }
-//     // llenar el universo
-//     for (int i = 0; i < m; ++i)
-//     {
-//         U.push_back(i);
-//     }
-//     // vector<int> p;
-//     cout << OPT(1, n, min_pos) << endl;
-//     // en umap se va a guarda OPT con la raya encima (el del pdf)
-//     // matriz umapOPT;
-//     // matriz umapK;
-//     // cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
-//     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
-//     // cout << umap[1][n] + K(1, n).size() << endl;
-//     // ProgramacionDinamica(1, n, umap);
-// }
+void InputByKeyboard()
+{
+    // Inputs
+    // n m (cadena 1, ..., cadena n)
+    // 3 3 aaa bab cab // 6
+    // 6 3 aaa bab cab cbb dcb dcc // 13
+    // 4 3 aaa baa bac cbb // 8
+    matriz min_pos;
+    set<char> sigma;
+    // n cadenas
+    int n;
+    cin >> n;
+    // cada cadena de longitud m
+    int m;
+    cin >> m;  
+    string cadena;
+    // llenar el conjunto S
+    for (int i = 0; i < n; ++i)
+    {
+        cin >> cadena;
+        // por si el profe nos da un testcase con mayúsculas
+        for_each(cadena.begin(), cadena.end(), [](char & c) 
+        {
+            c = ::tolower(c);
+        });
+        S.push_back(cadena.substr(0, m));
+    }
+    // llenar el alfabeto
+    for (auto it : S)
+    {
+        for (auto it2 : it)
+        {
+            sigma.insert(it2);
+        }
+    }
+    // llenar el universo
+    for (int i = 0; i < m; ++i)
+    {
+        U.push_back(i);
+    }
+
+    matriz umapOPT, umapK, min_pos1, min_pos2, min_pos3;
+    cout << OPT(1, n, min_pos) << endl;
+    cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
+    cout << ProgramacionDinamica(1, n) << endl;
+}
 
 int main()
 {
-    parser();
+    InputByKeyboard();
+    // parser();
 }
