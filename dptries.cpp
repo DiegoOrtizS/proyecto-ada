@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <limits>
+#include<queue>
 #include <map>
 
 using namespace std;
@@ -119,57 +120,24 @@ void printVectorPair(vector<pair<T1, T2>> v)
     cout << endl;
 }
 
-template <typename T>
-void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
-{
-    for (auto it : umap)
-    {
-        for (auto it2 : it.second)
+
+
+
+bool printTrieGen(node* root){
+    queue<node*>Q;
+    Q.push(root);
+    while(!Q.empty()){
+        node* u = Q.front();
+        Q.pop();
+        for(auto it : u->adj)
         {
-            cout << it.first << "," << it2.first << ": " << it2.second << " ";
-        }
-        cout << endl;
-    }
-}
-
-void initFalse(node* node, unordered_map<int,bool>&visited){
-    for(auto it: node->adj){
-        if(!node->adj.empty()){
-            visited[it.second->id] = false;
-            initFalse(it.second, visited);
-        }     
-    }
-}
-
-void explorar(node* node, unordered_map<int,bool>&visited){
-    visited[node->id] = true;
-    for(auto it: node->adj){
-        if(!node->adj.empty()){
-            if(!visited[it.second->id]){
-                cout<<it.second->pos<<" ";
-                explorar(it.second,visited);
-            }
-        }  
-        
-    }
-}
-
-void printTrieGen(node* root)
-{
-    unordered_map<int,bool>visited;
-
-    visited[root->id] = false;
-    initFalse(root,visited);
-
-    visited[root->id] = true;
-    for(auto it : root->adj){
-        if(!visited[it.second->id]){
-            explorar(it.second,visited);
+            Q.push(it.second);
+            cout << it.second->pos << "\n" << it.first << " " ;
         }
     }
+    return true;
 
-}
-
+};
 
 
 
@@ -382,7 +350,7 @@ int OPT(int i, int j, matriz min_pos)
          root=tmp;
     }
     
-    // printTrieGen(root);
+    printTrieGen(root);
     return min;
 }
 
