@@ -4,6 +4,8 @@
 #include "algoritmos/recursivo.h"
 #include "algoritmos/memorizado.h"
 #include "algoritmos/dinamic.h"
+#include <stdio.h>
+#include <chrono>
 
 using namespace std;
 
@@ -92,27 +94,45 @@ int main()
         U.push_back(i);
     }
 
+    // freopen("output.txt","w",stdout);
+
+    auto begin = std::chrono::high_resolution_clock::now();
+
     vector<int> p;
     cout <<"Recursivo: "<<OPT(1, n, min_pos) << endl;
     auto *nodeRecursivo =completeBuild(1,n,min_pos);
-    printTrieGen(nodeRecursivo);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    cout<<"Tiempo:"<<elapsed.count()<<endl;
+    // printTrieGen(nodeRecursivo);
     //printMapOfMaps(min_pos);
+
       
-    // en umap se va a guarda OPT con la raya encima (el del pdf)
+    // // en umap se va a guarda OPT con la raya encima (el del pdf)
+    auto begin2 = std::chrono::high_resolution_clock::now();
     matriz umapOPT;
     matriz umapK;
-
-
     matriz min_pos2;
     cout << "Memorizado: "<<LlamarMemoizado(1, n, umapOPT, umapK, min_pos2) << endl;
     auto *nodeMemorizado =completeBuild(1,n,min_pos2);
-    printTrieGen(nodeMemorizado);
+    auto end2 = std::chrono::high_resolution_clock::now();
+    auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - begin2);
+    cout<<"Tiempo:"<<elapsed2.count()<<endl;
+    // printTrieGen(nodeMemorizado);
     //printMapOfMaps(min_pos2);
+
+    auto begin3 = std::chrono::high_resolution_clock::now();
     matriz min_pos3;
     cout<< "Dinamico:" <<ProgramacionDinamica(1,n,min_pos3) <<endl;
     auto *nodeDinamico =completeBuild(1,n,min_pos3);
-    printTrieGen(nodeDinamico);
+    auto end3 = std::chrono::high_resolution_clock::now();
+    auto elapsed3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end3 - begin3);
+    cout<<"Tiempo:"<<elapsed3.count()<<endl;
+    // printTrieGen(nodeDinamico);
     //printMapOfMaps(min_pos3);
+
+
+    
     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
     // cout << umap[1][n] + K(1, n).size() << endl;
     // ProgramacionDinamica(1, n, umap);

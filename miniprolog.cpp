@@ -5,6 +5,8 @@
 #include "estructuras/sptrie.h"
 #include "algoritmos/dinamic.h"
 #include "algoritmos/greedy.h"
+#include <stdio.h>
+#include <chrono>
 // #include "memorizado.h"
 
 int main()
@@ -43,8 +45,12 @@ int main()
                 {
                     cout<<it2<<" -> ";
                     vector<char> result;
+                    auto begin = std::chrono::high_resolution_clock::now();
                     executeQueryGreedy(rtriesG[it.first], it2, result, nullptr, 0);
+                    auto end = std::chrono::high_resolution_clock::now();
+                    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
                     printVector(result);
+                    cout<<"Tiempo de Consulta:"<<elapsed.count()<<endl;
                 }
             }
         }
@@ -65,8 +71,8 @@ int main()
                 matriz min_pos;
                 cout<<"Dinamico Result:"<<ProgramacionDinamica(1, S.size(),min_pos)<<endl;
                 rtriesDP[it.first] = completeBuild(1, S.size(), min_pos);
-                printTrieGen(rtriesDP[it.first]);
-                cout<<endl;
+                // printTrieGen(rtriesDP[it.first]);
+                // cout<<endl;
             }
             for (auto it : entradaYconsulta.second)
             {
@@ -75,8 +81,12 @@ int main()
                 {
                     cout<<it2<<" -> ";
                     vector<char> result;
+                    auto begin2 = std::chrono::high_resolution_clock::now();
                     executeQuery(rtriesDP[it.first], it2, result, nullptr);
+                    auto end2 = std::chrono::high_resolution_clock::now();
+                    auto elapsed2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - begin2);
                     printVector(result);
+                    cout<<"Tiempo de Consulta:"<<elapsed2.count()<<endl;
                 }
             }
         }
