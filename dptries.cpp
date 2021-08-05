@@ -255,9 +255,8 @@ int Memoizado(int i, int j, mapa &umapOPT, mapa umapK)
         int suma = 0;
         for (auto par : c) // <= n iteraciones
         {
-            if (umapOPT[par.first][par.second] == -1) 
-                umapOPT[par.first][par.second] += Memoizado(par.first, par.second, umapOPT, umapK) + umapK[par.first][par.second] - k;
-            suma += umapOPT[par.first][par.second];
+            if (umapOPT[i][j] != -1) return umapOPT[i][j];
+            suma += Memoizado(par.first, par.second, umapOPT, umapK) + K(par.first, par.second).size() - k;
         }
         if (suma < minimo) minimo = suma;
     }
@@ -387,7 +386,7 @@ int main()
     // Pregunta 3
     cout << "Recursivo min edges: " << OPT(1, n) << endl;
     // Pregunta 4
-    // cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
+    cout << "Memoizado min edges: " << LlamarMemoizado(1, n) << endl;
     // Pregunta 5
     cout << "DP min edges: " << ProgramacionDinamica(1, n) << endl;
 }
