@@ -256,7 +256,7 @@ int Memoizado(int i, int j, mapa &umapOPT, mapa umapK)
         for (auto par : c) // <= n iteraciones
         {
             if (umapOPT[i][j] != -1) return umapOPT[i][j];
-            suma += Memoizado(par.first, par.second, umapOPT, umapK) + K(par.first, par.second).size() - k;
+            suma += Memoizado(par.first, par.second, umapOPT, umapK) + umapK[par.first][par.second] - k;
         }
         if (suma < minimo) minimo = suma;
     }
