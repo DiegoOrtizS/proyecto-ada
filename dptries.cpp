@@ -535,7 +535,6 @@ void InputByKeyboard()
     // 3 3 aaa bab cab // 6
     // 6 3 aaa bab cab cbb dcb dcc // 13
     // 4 3 aaa baa bac cbb // 8
-    matriz min_pos;
     set<char> sigma;
     // n cadenas
     int n;
@@ -570,8 +569,8 @@ void InputByKeyboard()
     }
 
     matriz umapOPT, umapK, min_pos1, min_pos2, min_pos3;
-    cout << OPT(1, n, min_pos) << endl;
-    cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
+    cout << OPT(1, n, min_pos1) << endl;
+    cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos2) << endl;
     cout << ProgramacionDinamica(1, n) << endl;
 }
 
