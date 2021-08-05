@@ -2,3 +2,6 @@ r1 abc
 r1 aab
 r2 ab
 r2 bc
+r3 aaa
+r3 bab
+r3 cab

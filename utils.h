@@ -32,7 +32,8 @@ vector<int> RsinK(int i, int j);
 vector<pair<int, int>> C(int i, int j, int r);
 vector<int> R(int i, int j, vector<int> K);
 vector<int> K(int i, int j);
-
+void fillMap(matriz &umapOPT, matriz &umapK);
+void printMapOfMaps(matriz umap);
 
 
 vector<int> K(int i, int j)
@@ -171,4 +172,32 @@ vector<int> R(int i, int j, vector<int> K)
     vector<int> difference;
     set_difference(U.begin(), U.end(),K.begin(), K.end(),back_inserter(difference));
     return difference;
+}
+
+
+void fillMap(matriz &umapOPT, matriz &umapK)
+{
+    // umapOPT y umapK son de complejidad espacial O(n^2). 
+    // Luego, para guardar el trie se necesitará O(n*m*sigma).
+    for (int iter1 = 1; iter1 < S.size()+1; ++iter1)
+    {
+        for (int iter2 = 1; iter2 < iter1+1; ++iter2)
+        {
+            if (iter1 == iter2) umapOPT[iter2][iter1] = 0;
+            else umapOPT[iter2][iter1] = -1;
+            umapK[iter2][iter1] = K(iter2, iter1).size();
+        }
+    }
+}
+
+void printMapOfMaps(matriz umap)
+{
+    for (auto it : umap)
+    {
+        for (auto it2 : it.second)
+        {
+            cout << it.first << "," << it2.first << ": " << it2.second << " ";
+        }
+        cout << endl;
+    }
 }

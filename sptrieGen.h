@@ -1,6 +1,7 @@
 struct node{
     int id;
     int pos;
+
     map<char,node*> adj;
     node(int pos){
         this->pos=pos;
@@ -11,6 +12,35 @@ node* build_trie(int i, int j, matriz &min_pos);
 void printTrieGen(node* root);
 
 node* completeBuild(int i,int j, matriz &min_pos);
+
+vector<string> executeQuery(node* root, string query);
+
+
+void executeQuery(node* root, string query, vector<char> &rpta, char* cumple){
+    if (root->pos == -1) 
+    {
+        // if (!strcmp(cumple, ""))
+        if (cumple != nullptr)
+            rpta.push_back(*cumple);
+        return;
+    }
+
+    if (query[root->pos] == 'X')
+    {
+        for (auto it : root->adj)
+        {   
+            cumple = new char[1];
+            *cumple= it.first; 
+        
+            executeQuery(it.second, query, rpta, cumple);
+        }
+    }
+    else
+    {
+        if (root->adj.find(query[root->pos]) == root->adj.end()) return;
+        executeQuery(root->adj[query[root->pos]], query, rpta, cumple);
+    }
+}
 
 
 node* completeBuild(int i,int j, matriz &min_pos){

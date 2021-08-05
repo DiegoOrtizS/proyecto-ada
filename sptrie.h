@@ -1,9 +1,6 @@
-#include "lib.h"
-
-int aristas = 0;
-
 struct SPTrieNode
 {
+    // map<char, SPTrieNode*> adj;
     vector<SPTrieNode*> children;
     bool isLeaf;
     vector<int> p;
@@ -37,22 +34,30 @@ struct SPTrieNode
     }
 };
 
-void print(SPTrieNode* current, char str[], int level)
-{
-    if (current->isLeaf) 
+void executeQueryGreedy(SPTrieNode* root, string query, vector<char> &rpta, char* cumple, int i){
+    if (root->isLeaf) 
     {
-        str[level] = '\0';
-        cout << str << endl;
+        if (cumple != nullptr)
+            rpta.push_back(*cumple);
+        return;
     }
-
-    for (int i = 0; i < 26; i++) 
+    
+    if (query[root->p[i]] == 'X')
     {
-        if (current->children[i]) 
+        for (int it = 0; it < root->children.size(); ++it)
         {
-            str[level] = i + 97;
-            print(current->children[i], str, level + 1);
+            if (root->children[it] != nullptr)
+            {
+                cumple = new char[1];
+                *cumple= it + 97; 
+            
+                executeQueryGreedy(root->children[it], query, rpta, cumple, i+1);
+            }
         }
     }
+    else
+    {
+        if (root->children[query[root->p[i]]-97] == nullptr) return;
+        executeQueryGreedy(root->children[query[root->p[i]]-97], query, rpta, cumple, i+1);
+    }
 }
-
-

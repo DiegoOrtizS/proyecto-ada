@@ -1,8 +1,8 @@
 
-int ProgramacionDinamica(int start, int end);
+int ProgramacionDinamica(int start, int end, matriz& minpos);
 
 
-int ProgramacionDinamica(int start, int end)
+int ProgramacionDinamica(int start, int end, matriz& minpos)
 {
     // umapAgrupa: agrupar
     // umapOPT: OPT
@@ -51,7 +51,11 @@ int ProgramacionDinamica(int start, int end)
                             suma -= umapK[i+1][j+1];
                         }
                         // Nuevo mínimo
-                        if (suma < minimo) minimo = suma;
+                        if (suma < minimo) {
+                            minimo = suma;
+                            minpos[i+1][j+1]=k;
+                        }
+                            
                     }
                 }
                 // Lleno el OPT para i, j

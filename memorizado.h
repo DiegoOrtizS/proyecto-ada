@@ -1,6 +1,6 @@
 
 int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos);
-void fillMap(matriz &umapOPT, matriz &umapK);
+
 int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_pos);
 
 
@@ -8,7 +8,7 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
 {
     if (i == j) 
     {
-        min_pos[i][j] = -1;
+        //min_pos[i][j] = -1;
         return 0;
     }
     auto k = umapK[i][j]; // O(1)
@@ -34,20 +34,7 @@ int Memoizado(int i, int j, matriz &umapOPT, matriz &umapK, matriz &min_pos)
     umapOPT[i][j] = minimo;
     return minimo;
 }
-void fillMap(matriz &umapOPT, matriz &umapK)
-{
-    // umapOPT y umapK son de complejidad espacial O(n^2). 
-    // Luego, para guardar el trie se necesitará O(n*m*sigma).
-    for (int iter1 = 1; iter1 < S.size()+1; ++iter1)
-    {
-        for (int iter2 = 1; iter2 < iter1+1; ++iter2)
-        {
-            if (iter1 == iter2) umapOPT[iter2][iter1] = 0;
-            else umapOPT[iter2][iter1] = -1;
-            umapK[iter2][iter1] = K(iter2, iter1).size();
-        }
-    }
-}
+
 
 int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz &min_pos)
 {
