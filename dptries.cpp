@@ -1,9 +1,12 @@
 #include <iostream>
-#include "sptrie.h"
+// #include "sptrie.h"
 #include <set>
 #include <algorithm>
 #include <unordered_map>
+#include <fstream>
 #include <limits>
+#include <string>
+#include <vector>
 #include <map>
 
 using namespace std;
@@ -14,14 +17,70 @@ vector<string> S;
 
 int INF = numeric_limits<int>::max();
 
-typedef unordered_map<int, unordered_map<int, int>> matriz;
+typedef map<int, map<int, int>> matriz;
+typedef map<string, vector<string>> mapParser;
+
+vector<string> split(const string& str, const string& delim)
+{
+	vector<string> tokens;
+	size_t prev = 0, pos = 0;
+	do
+	{
+		pos = str.find(delim, prev);
+		if (pos == string::npos)
+		{
+			pos = str.length();
+		}
+		string token = str.substr(prev, pos - prev);
+		if (!token.empty())
+		{
+			tokens.push_back(token);
+		}
+		prev = pos + delim.length();
+	} while (pos < str.length() && prev < str.length());
+
+	return tokens;
+}
+
+void parseFile(string nombre, mapParser &mapaP)
+{
+    ifstream file;
+    file.open(nombre);
+    string str; 
+    while (getline(file, str))
+    {
+        auto splitted = split(str, " ");
+        mapaP[splitted[0]].push_back(splitted[1]);
+    }
+    file.close();
+}
+
+void printMapParser(mapParser &mapaP)
+{
+    for (auto it : mapaP)
+    {
+        cout << it.first << " -> ";
+        for (auto it2 : it.second)
+        {
+            cout << it2 << " ";
+        }
+        cout << endl;
+    }
+}
+
+pair<mapParser, mapParser> parser()
+{
+    mapParser mapaInput, mapaConsulta;
+    parseFile("entradaMiniProlog.txt", mapaInput);
+    printMapParser(mapaInput);
+    parseFile("consultaMiniProlog.txt", mapaConsulta);
+    printMapParser(mapaConsulta);
+    return make_pair(mapaInput, mapaConsulta);
+} 
 
 vector<int> K(int i, int j);
 vector<pair<int, int>> C(int i, int j, int r);
 vector<int> R(int i, int j, vector<int> K);
-
-
-
 
 struct node{
     int id;
@@ -78,25 +137,6 @@ node* build_trie(int i, int j, matriz &min_pos){
 
 }
 
-// bool cmp(pair<int, int>& a,
-//          pair<int, int>& b)
-// {
-//     return a.second < b.second;
-// }
-
-// vector<pair<int, int>> sort(unordered_map<int, int> &umap)
-// {
-//     vector<pair<int, int>> v;
-  
-//     for (auto& it : umap) 
-//     {
-//         v.push_back(it);
-//     }
-  
-//     sort(v.begin(), v.end(), cmp);
-//     return v;
-// }
-
 template <typename T>
 void printVector(vector<T> v)
 {
@@ -119,8 +159,7 @@ void printVectorPair(vector<pair<T1, T2>> v)
     cout << endl;
 }
 
-template <typename T>
-void printMapOfMaps(unordered_map<T, unordered_map<T, T>> umap)
+void printMapOfMaps(matriz umap)
 {
     for (auto it : umap)
     {
@@ -169,11 +208,6 @@ void printTrieGen(node* root)
     }
 
 }
-
-
-
-
-
 
 vector<int> K(int i, int j)
 {
@@ -421,67 +455,130 @@ int LlamarMemoizado(int i, int j, matriz &umapOPT, matriz &umapK , matriz min_po
     return Memoizado(i, j, umapOPT, umapK, min_pos) + umapK[i][j];
 }
 
-// int ProgramacionDinamica(int i, int j, matriz &umap)
-// {
-//     fillMap(umap);
-//     int iter2 = j;
-//     for (int iter1 = i; iter1 < j; ++iter1, --iter2)
-//     {
-//         K(iter1, iter2);
+int ProgramacionDinamica(int start, int end)
+{
+    // umapAgrupa: agrupar
+    // umapOPT: OPT
+    // umapK: K
+    --start;
+    --end;
+    matriz umapAgrupa, umapOPT, umapK;
+    fillMap(umapOPT, umapK); // O(n^3*m)
 
+    // O(m*n)
+    for (int i = 0; i < S[0].size(); ++i) // <= m iteraciones
+    {
+        umapAgrupa[i][end] = end;
+        for (int j = end-1; j >= 0; --j) // <= n iteraciones
+        {
+            umapAgrupa[i][j] = (S[j][i] == S[j+1][i]) ? umapAgrupa[i][j+1] : j;
+        }
+    }
+    
+    // O(n^3*m)
+    for (int len = 1; len <= S.size(); ++len) // <= n iteraciones
+    {
+        for (int i = 0; i <= S.size() - len; ++i) // <= n iteraciones
+        {
+            int j = i+len-1;
+            
+            // Nodo interno
+            if (umapK[i+1][j+1] != S[0].size())
+            {
+                int minimo = INF;
+                for (int k = 0; k < S[0].size(); ++k) // <= m iteraciones
+                {
+                    if (umapAgrupa[k][i] < j)
+                    {
+                        int suma = 0;
+                        for (int l = i; l <= j; l = umapAgrupa[k][l]+1) // <= n iteraciones
+                        {
+                            if (j < umapAgrupa[k][l])
+                            {
+                                suma += umapK[l+1][j+1] + umapOPT[l][j];
+                            }
+                            else
+                            {
+                                suma += umapK[l+1][umapAgrupa[k][l]+1] + umapOPT[l][umapAgrupa[k][l]];
+                            }
+                            suma -= umapK[i+1][j+1];
+                        }
+                        // Nuevo mínimo
+                        if (suma < minimo) minimo = suma;
+                    }
+                }
+                // Lleno el OPT para i, j
+                umapOPT[i][j] = minimo;
+            }
+            // Nodo hoja
+            else
+            {
+                umapOPT[i][j] = 0;
+            }
+        }
+    }
+
+    // Agregar aristas faltantes en caso haya (para casos donde hay varios mínimos)
+    // O(m) (ej: 3 3 aaa bab cab)
+    for (int k = 0; k < S[0].size(); ++k)
+    {
+        if (umapAgrupa[k][start] == end) umapOPT[start][end]++;
+    }
+    return umapOPT[start][end];
+}
+
+// int main()
+// {
+//     // Inputs
+//     // n m (cadena 1, ..., cadena n)
+//     // 3 3 aaa bab cab // 6
+//     // 6 3 aaa bab cab cbb dcb dcc // 13
+//     // 4 3 aaa baa bac cbb // 8
+//     matriz min_pos;
+//     set<char> sigma;
+//     // n cadenas
+//     int n;
+//     cin >> n;
+//     // cada cadena de longitud m
+//     int m;
+//     cin >> m;  
+//     string cadena;
+//     // llenar el conjunto S
+//     for (int i = 0; i < n; ++i)
+//     {
+//         cin >> cadena;
+//         // por si el profe nos da un testcase con mayúsculas
+//         for_each(cadena.begin(), cadena.end(), [](char & c) 
+//         {
+//             c = ::tolower(c);
+//         });
+//         S.push_back(cadena.substr(0, m));
 //     }
+//     // llenar el alfabeto
+//     for (auto it : S)
+//     {
+//         for (auto it2 : it)
+//         {
+//             sigma.insert(it2);
+//         }
+//     }
+//     // llenar el universo
+//     for (int i = 0; i < m; ++i)
+//     {
+//         U.push_back(i);
+//     }
+//     // vector<int> p;
+//     cout << OPT(1, n, min_pos) << endl;
+//     // en umap se va a guarda OPT con la raya encima (el del pdf)
+//     // matriz umapOPT;
+//     // matriz umapK;
+//     // cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
+//     // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
+//     // cout << umap[1][n] + K(1, n).size() << endl;
+//     // ProgramacionDinamica(1, n, umap);
 // }
 
 int main()
 {
-    // Inputs
-    // n m (cadena 1, ..., cadena n)
-    // 3 3 aaa bab cab // 6
-    // 6 3 aaa bab cab cbb dcb dcc // 13
-    // 4 3 aaa baa bac cbb // 8
-    matriz min_pos;
-
-    
-    set<char> sigma;
-    // n cadenas
-    int n;
-    cin >> n;
-    // cada cadena de longitud m
-    int m;
-    cin >> m;  
-    string cadena;
-    // llenar el conjunto S
-    for (int i = 0; i < n; ++i)
-    {
-        cin >> cadena;
-        // por si el profe nos da un testcase con mayúsculas
-        for_each(cadena.begin(), cadena.end(), [](char & c) 
-        {
-            c = ::tolower(c);
-        });
-        S.push_back(cadena.substr(0, m));
-    }
-    // llenar el alfabeto
-    for (auto it : S)
-    {
-        for (auto it2 : it)
-        {
-            sigma.insert(it2);
-        }
-    }
-    // llenar el universo
-    for (int i = 0; i < m; ++i)
-    {
-        U.push_back(i);
-    }
-
-    // vector<int> p;
-    cout << OPT(1, n, min_pos) << endl;
-    // en umap se va a guarda OPT con la raya encima (el del pdf)
-    // matriz umapOPT;
-    // matriz umapK;
-    // cout << LlamarMemoizado(1, n, umapOPT, umapK, min_pos) << endl;
-    // Si quiero OPT(1, n) que es la rpta se le debe sumar |K(1, n)| al umap(1, n)
-    // cout << umap[1][n] + K(1, n).size() << endl;
-    // ProgramacionDinamica(1, n, umap);
+    parser();
 }
