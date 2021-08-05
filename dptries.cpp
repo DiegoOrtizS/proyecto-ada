@@ -364,15 +364,23 @@ int OPTR(int i, int j, matriz &min_pos)//,unordered_map<int,int> &rmap)
 
 int OPT(int i, int j, matriz min_pos)
 {  
-    auto min = OPTR(i, j, min_pos) + K(i, j).size();
+    
+    auto ktp=K(i, j);
+    auto min = OPTR(i, j, min_pos) + ktp.size();
 
     // for(auto it : K(i,j)){
     //     min_pos[i][j] = it;
     // }
 
     node* root = build_trie(i,j,min_pos);
-
-    //
+    //uno con los ks
+    for (int i=0;i<ktp.size();i++){
+         node* tmp=new node{};
+         char chartmp= S[0][ktp[i]];
+         tmp->pos=ktp[i];
+         tmp->adj[chartmp]=root;
+         root=tmp;
+    }
     
     // printTrieGen(root);
     return min;
